@@ -66,8 +66,8 @@
     <AndroidResource Include="Resources\Drawable-ldpi\ic_launcher.png" />
     <AndroidResource Include="Resources\Drawable-hdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\Values\strings.xml" />
-    <None Include="VideoStreamsView.java" />
-    <None Include="UnhandledExceptionHandler.java" />
+    <Compile Include="VideoStreamsView.cs" />
+    <Compile Include="UnhandledExceptionHandler.cs" />
     <None Include="java\AndroidManifest.xml" />
     <None Include="java\assets\channel.html" />
     <None Include="java\build.xml" />
@@ -88,10 +88,10 @@
     <None Include="java\src\org\appspot\apprtc\VideoStreamsView.java" />
     <AndroidJavaLibrary Include="lib\libjingle_peerconnection.jar" />
     <AndroidAsset Include="Assets\channel.html" />
-    <None Include="AppRTCClient.java" />
-    <None Include="AppRTCDemoActivity.java" />
-    <None Include="FramePool.java" />
-    <None Include="GAEChannelClient.java" />
+    <Compile Include="AppRTCClient.cs" />
+    <Compile Include="AppRTCDemoActivity.cs" />
+    <Compile Include="FramePool.cs" />
+    <Compile Include="GAEChannelClient.cs" />
     <Content Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
