@@ -1,3 +1,6 @@
+﻿using System;
+using System.Threading;
+
 /*
  * libjingle
  * Copyright 2013, Google Inc.
@@ -25,79 +28,108 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.appspot.apprtc;
+namespace org.appspot.apprtc
+{
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.util.Log;
-import android.util.TypedValue;
-import android.widget.ScrollView;
-import android.widget.TextView;
+	using Activity = android.app.Activity;
+	using AlertDialog = android.app.AlertDialog;
+	using DialogInterface = android.content.DialogInterface;
+	using Log = android.util.Log;
+	using TypedValue = android.util.TypedValue;
+	using ScrollView = android.widget.ScrollView;
+	using TextView = android.widget.TextView;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
-/**
- * Singleton helper: install a default unhandled exception handler which shows
- * an informative dialog and kills the app.  Useful for apps whose
- * error-handling consists of throwing RuntimeExceptions.
- * NOTE: almost always more useful to
- * Thread.setDefaultUncaughtExceptionHandler() rather than
- * Thread.setUncaughtExceptionHandler(), to apply to background threads as well.
- */
-public class UnhandledExceptionHandler
-    implements Thread.UncaughtExceptionHandler {
-  private static final String TAG = "AppRTCDemoActivity";
-  private final Activity activity;
+	/// <summary>
+	/// Singleton helper: install a default unhandled exception handler which shows
+	/// an informative dialog and kills the app.  Useful for apps whose
+	/// error-handling consists of throwing RuntimeExceptions.
+	/// NOTE: almost always more useful to
+	/// Thread.setDefaultUncaughtExceptionHandler() rather than
+	/// Thread.setUncaughtExceptionHandler(), to apply to background threads as well.
+	/// </summary>
+	public class UnhandledExceptionHandler : System.Threading.Thread.UncaughtExceptionHandler
+	{
+	  private const string TAG = "AppRTCDemoActivity";
+	  private readonly Activity activity;
 
-  public UnhandledExceptionHandler(final Activity activity) {
-    this.activity = activity;
-  }
+//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
+//ORIGINAL LINE: public UnhandledExceptionHandler(final android.app.Activity activity)
+	  public UnhandledExceptionHandler(Activity activity)
+	  {
+		this.activity = activity;
+	  }
 
-  public void uncaughtException(Thread unusedThread, final Throwable e) {
-    activity.runOnUiThread(new Runnable() {
-        @Override public void run() {
-          String title = "Fatal error: " + getTopLevelCauseMessage(e);
-          String msg = getRecursiveStackTrace(e);
-          TextView errorView = new TextView(activity);
-          errorView.setText(msg);
-          errorView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8);
-          ScrollView scrollingContainer = new ScrollView(activity);
-          scrollingContainer.addView(errorView);
-          Log.e(TAG, title + "\n\n" + msg);
-          DialogInterface.OnClickListener listener =
-              new DialogInterface.OnClickListener() {
-                @Override public void onClick(
-                    DialogInterface dialog, int which) {
-                  dialog.dismiss();
-                  System.exit(1);
-                }
-              };
-          AlertDialog.Builder builder =
-              new AlertDialog.Builder(activity);
-          builder
-              .setTitle(title)
-              .setView(scrollingContainer)
-              .setPositiveButton("Exit", listener).show();
-        }
-      });
-  }
+//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
+//ORIGINAL LINE: public void uncaughtException(Thread unusedThread, final Throwable e)
+	  public virtual void uncaughtException(Thread unusedThread, Exception e)
+	  {
+		activity.runOnUiThread(new RunnableAnonymousInnerClassHelper(this, e));
+	  }
 
-  // Returns the Message attached to the original Cause of |t|.
-  private static String getTopLevelCauseMessage(Throwable t) {
-    Throwable topLevelCause = t;
-    while (topLevelCause.getCause() != null) {
-      topLevelCause = topLevelCause.getCause();
-    }
-    return topLevelCause.getMessage();
-  }
+	  private class RunnableAnonymousInnerClassHelper : Runnable
+	  {
+		  private readonly UnhandledExceptionHandler outerInstance;
 
-  // Returns a human-readable String of the stacktrace in |t|, recursively
-  // through all Causes that led to |t|.
-  private static String getRecursiveStackTrace(Throwable t) {
-    StringWriter writer = new StringWriter();
-    t.printStackTrace(new PrintWriter(writer));
-    return writer.toString();
-  }
+		  private Exception e;
+
+		  public RunnableAnonymousInnerClassHelper(UnhandledExceptionHandler outerInstance, Exception e)
+		  {
+			  this.outerInstance = outerInstance;
+			  this.e = e;
+		  }
+
+		  public override void run()
+		  {
+			string title = "Fatal error: " + getTopLevelCauseMessage(e);
+			string msg = getRecursiveStackTrace(e);
+			TextView errorView = new TextView(outerInstance.activity);
+			errorView.Text = msg;
+			errorView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8);
+			ScrollView scrollingContainer = new ScrollView(outerInstance.activity);
+			scrollingContainer.addView(errorView);
+			Log.e(TAG, title + "\n\n" + msg);
+			DialogInterface.OnClickListener listener = new OnClickListenerAnonymousInnerClassHelper(this);
+			AlertDialog.Builder builder = new AlertDialog.Builder(outerInstance.activity);
+			builder.setTitle(title).setView(scrollingContainer).setPositiveButton("Exit", listener).show();
+		  }
+
+		  private class OnClickListenerAnonymousInnerClassHelper : DialogInterface.OnClickListener
+		  {
+			  private readonly RunnableAnonymousInnerClassHelper outerInstance;
+
+			  public OnClickListenerAnonymousInnerClassHelper(RunnableAnonymousInnerClassHelper outerInstance)
+			  {
+				  this.outerInstance = outerInstance;
+			  }
+
+			  public override void onClick(DialogInterface dialog, int which)
+			  {
+				dialog.dismiss();
+				Environment.Exit(1);
+			  }
+		  }
+	  }
+
+	  // Returns the Message attached to the original Cause of |t|.
+	  private static string getTopLevelCauseMessage(Exception t)
+	  {
+		Exception topLevelCause = t;
+		while (topLevelCause.InnerException != null)
+		{
+		  topLevelCause = topLevelCause.InnerException;
+		}
+		return topLevelCause.Message;
+	  }
+
+	  // Returns a human-readable String of the stacktrace in |t|, recursively
+	  // through all Causes that led to |t|.
+	  private static string getRecursiveStackTrace(Exception t)
+	  {
+		StringWriter writer = new StringWriter();
+		t.printStackTrace(new PrintWriter(writer));
+		return writer.ToString();
+	  }
+	}
+
 }
