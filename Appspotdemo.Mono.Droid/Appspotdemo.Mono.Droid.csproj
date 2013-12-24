@@ -61,6 +61,11 @@
     <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidResource Include="Resources\Drawable-xhdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\Drawable-mdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\Drawable-ldpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\Drawable-hdpi\ic_launcher.png" />
+    <AndroidResource Include="Resources\Values\strings.xml" />
     <None Include="java\AndroidManifest.xml" />
     <None Include="java\assets\channel.html" />
     <None Include="java\build.xml" />
@@ -85,7 +90,6 @@
   <ItemGroup>
     <Folder Include="Resources\Drawable\" />
     <Folder Include="Resources\Layout\" />
-    <Folder Include="Resources\Values\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
