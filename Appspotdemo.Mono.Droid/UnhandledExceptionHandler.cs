@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-
 /*
  * libjingle
  * Copyright 2013, Google Inc.
@@ -27,19 +25,17 @@ using System.Threading;
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+using Android.App;
+using Android.Content;
+using Android.Util;
+using Android.Widget;
+using Java.IO;
+using Java.Lang;
+using Exception = System.Exception;
+using Thread = System.Threading.Thread;
 
-namespace org.appspot.apprtc
+namespace Appspotdemo.Mono.Droid
 {
-
-	using Activity = android.app.Activity;
-	using AlertDialog = android.app.AlertDialog;
-	using DialogInterface = android.content.DialogInterface;
-	using Log = android.util.Log;
-	using TypedValue = android.util.TypedValue;
-	using ScrollView = android.widget.ScrollView;
-	using TextView = android.widget.TextView;
-
-
 	/// <summary>
 	/// Singleton helper: install a default unhandled exception handler which shows
 	/// an informative dialog and kills the app.  Useful for apps whose
@@ -48,13 +44,13 @@ namespace org.appspot.apprtc
 	/// Thread.setDefaultUncaughtExceptionHandler() rather than
 	/// Thread.setUncaughtExceptionHandler(), to apply to background threads as well.
 	/// </summary>
-	public class UnhandledExceptionHandler : System.Threading.Thread.UncaughtExceptionHandler
+	public class UnhandledExceptionHandler : Java.Lang.Object, Java.Lang.Thread.IUncaughtExceptionHandler
 	{
 	  private const string TAG = "AppRTCDemoActivity";
 	  private readonly Activity activity;
 
 //JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-//ORIGINAL LINE: public UnhandledExceptionHandler(final android.app.Activity activity)
+//ORIGINAL LINE: public UnhandledExceptionHandler(final Android.App.Activity activity)
 	  public UnhandledExceptionHandler(Activity activity)
 	  {
 		this.activity = activity;
@@ -62,12 +58,12 @@ namespace org.appspot.apprtc
 
 //JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
 //ORIGINAL LINE: public void uncaughtException(Thread unusedThread, final Throwable e)
-	  public virtual void uncaughtException(Thread unusedThread, Exception e)
+	  public void UncaughtException(Thread unusedThread, Java.Lang.Exception e)
 	  {
-		activity.runOnUiThread(new RunnableAnonymousInnerClassHelper(this, e));
+		activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this, e));
 	  }
 
-	  private class RunnableAnonymousInnerClassHelper : Runnable
+	  private class RunnableAnonymousInnerClassHelper : Java.Lang.Object, IRunnable
 	  {
 		  private readonly UnhandledExceptionHandler outerInstance;
 
@@ -79,22 +75,22 @@ namespace org.appspot.apprtc
 			  this.e = e;
 		  }
 
-		  public override void run()
+		  public void Run()
 		  {
 			string title = "Fatal error: " + getTopLevelCauseMessage(e);
 			string msg = getRecursiveStackTrace(e);
 			TextView errorView = new TextView(outerInstance.activity);
 			errorView.Text = msg;
-			errorView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8);
+			errorView.SetTextSize(TypedValue.COMPLEX_UNIT_SP, 8);
 			ScrollView scrollingContainer = new ScrollView(outerInstance.activity);
-			scrollingContainer.addView(errorView);
-			Log.e(TAG, title + "\n\n" + msg);
-			DialogInterface.OnClickListener listener = new OnClickListenerAnonymousInnerClassHelper(this);
+			scrollingContainer.AddView(errorView);
+			Log.Error(TAG, title + "\n\n" + msg);
+			IDialogInterfaceOnClickListener listener = new OnClickListenerAnonymousInnerClassHelper(this);
 			AlertDialog.Builder builder = new AlertDialog.Builder(outerInstance.activity);
-			builder.setTitle(title).setView(scrollingContainer).setPositiveButton("Exit", listener).show();
+			builder.SetTitle(title).SetView(scrollingContainer).SetPositiveButton("Exit", listener).Show();
 		  }
 
-		  private class OnClickListenerAnonymousInnerClassHelper : DialogInterface.OnClickListener
+		  private class OnClickListenerAnonymousInnerClassHelper : Java.Lang.Object, IDialogInterfaceOnClickListener
 		  {
 			  private readonly RunnableAnonymousInnerClassHelper outerInstance;
 
@@ -103,9 +99,9 @@ namespace org.appspot.apprtc
 				  this.outerInstance = outerInstance;
 			  }
 
-			  public override void onClick(DialogInterface dialog, int which)
+			  public void OnClick(IDialogInterface dialog, int which)
 			  {
-				dialog.dismiss();
+				dialog.Dismiss();
 				Environment.Exit(1);
 			  }
 		  }
@@ -127,9 +123,10 @@ namespace org.appspot.apprtc
 	  private static string getRecursiveStackTrace(Exception t)
 	  {
 		StringWriter writer = new StringWriter();
-		t.printStackTrace(new PrintWriter(writer));
+		t.PrintStackTrace(new PrintWriter(writer));
 		return writer.ToString();
 	  }
+
 	}
 
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-
-/*
+﻿/*
  * libjingle
  * Copyright 2013, Google Inc.
  *
@@ -30,42 +25,27 @@ using System.Threading;
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace org.appspot.apprtc
+using System.Collections.Generic;
+using Android.App;
+using Android.Content;
+using Android.Graphics;
+using Android.Media;
+using Android.OS;
+using Android.Util;
+using Android.Widget;
+using Java.Lang;
+using Java.Util.Regex;
+using org.appspot.apprtc;
+using Org.Json;
+using Org.Webrtc;
+using Exception = System.Exception;
+using Pattern = Android.OS.Pattern;
+using StringBuilder = System.Text.StringBuilder;
+using Thread = System.Threading.Thread;
+using VideoSource = Android.Media.VideoSource;
+
+namespace Appspotdemo.Mono.Droid
 {
-
-	using Activity = android.app.Activity;
-	using AlertDialog = android.app.AlertDialog;
-	using DialogInterface = android.content.DialogInterface;
-	using Intent = android.content.Intent;
-	using Point = android.graphics.Point;
-	using AudioManager = android.media.AudioManager;
-	using Bundle = android.os.Bundle;
-	using Log = android.util.Log;
-	using WindowManager = android.view.WindowManager;
-	using JavascriptInterface = android.webkit.JavascriptInterface;
-	using EditText = android.widget.EditText;
-	using Toast = android.widget.Toast;
-
-	using JSONException = org.json.JSONException;
-	using JSONObject = org.json.JSONObject;
-	using DataChannel = org.webrtc.DataChannel;
-	using IceCandidate = org.webrtc.IceCandidate;
-	using Logging = org.webrtc.Logging;
-	using MediaConstraints = org.webrtc.MediaConstraints;
-	using MediaStream = org.webrtc.MediaStream;
-	using PeerConnection = org.webrtc.PeerConnection;
-	using PeerConnectionFactory = org.webrtc.PeerConnectionFactory;
-	using SdpObserver = org.webrtc.SdpObserver;
-	using SessionDescription = org.webrtc.SessionDescription;
-	using StatsObserver = org.webrtc.StatsObserver;
-	using StatsReport = org.webrtc.StatsReport;
-	using VideoCapturer = org.webrtc.VideoCapturer;
-	using VideoRenderer = org.webrtc.VideoRenderer;
-	using I420Frame = org.webrtc.VideoRenderer.I420Frame;
-	using VideoSource = org.webrtc.VideoSource;
-	using VideoTrack = org.webrtc.VideoTrack;
-
-
 	/// <summary>
 	/// Main Activity of the AppRTCDemo Android app demonstrating interoperability
 	/// between the Android/Java implementation of PeerConnection and the
@@ -137,9 +117,9 @@ namespace org.appspot.apprtc
 		sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
 
 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
-//ORIGINAL LINE: final android.content.Intent intent = getIntent();
+//ORIGINAL LINE: final Android.content.Intent intent = getIntent();
 		Intent intent = Intent;
-		if ("android.intent.action.VIEW".Equals(intent.Action))
+		if ("Android.intent.action.VIEW".Equals(intent.Action))
 		{
 		  connectToRoom(intent.Data.ToString());
 		  return;
@@ -150,16 +130,16 @@ namespace org.appspot.apprtc
 	  private void showGetRoomUI()
 	  {
 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
-//ORIGINAL LINE: final android.widget.EditText roomInput = new android.widget.EditText(this);
+//ORIGINAL LINE: final Android.widget.EditText roomInput = new Android.widget.EditText(this);
 		EditText roomInput = new EditText(this);
 		roomInput.Text = "https://apprtc.appspot.com/?r=";
 		roomInput.Selection = roomInput.Text.length();
-		DialogInterface.OnClickListener listener = new OnClickListenerAnonymousInnerClassHelper(this, roomInput);
+		IDialogInterfaceOnClickListener listener = new OnClickListenerAnonymousInnerClassHelper(this, roomInput);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Enter room URL").setView(roomInput).setPositiveButton("Go!", listener).show();
+		builder.SetMessage("Enter room URL").SetView(roomInput).SetPositiveButton("Go!", listener).Show();
 	  }
 
-	  private class OnClickListenerAnonymousInnerClassHelper : DialogInterface.OnClickListener
+	  private class OnClickListenerAnonymousInnerClassHelper : Java.Lang.Object, IDialogInterfaceOnClickListener
 	  {
 		  private readonly AppRTCDemoActivity outerInstance;
 
@@ -171,10 +151,10 @@ namespace org.appspot.apprtc
 			  this.roomInput = roomInput;
 		  }
 
-		  public override void onClick(DialogInterface dialog, int which)
+		  public void OnClick(IDialogInterface dialog, int which)
 		  {
-			abortUnless(which == DialogInterface.BUTTON_POSITIVE, "lolwat?");
-			dialog.dismiss();
+			abortUnless(which == (int)DialogInterface.ButtonPositive, "lolwat?");
+			dialog.Dismiss();
 			outerInstance.connectToRoom(roomInput.Text.ToString());
 		  }
 	  }
@@ -187,28 +167,28 @@ namespace org.appspot.apprtc
 
 	  public override void onPause()
 	  {
-		base.onPause();
-		vsv.onPause();
+		base.OnPause();
+		vsv.OnPause();
 		if (videoSource != null)
 		{
-		  videoSource.stop();
+		  videoSource.Stop();
 		}
 	  }
 
 	  public override void onResume()
 	  {
-		base.onResume();
-		vsv.onResume();
+		base.OnResume();
+		vsv.OnResume();
 		if (videoSource != null)
 		{
-		  videoSource.restart();
+		  videoSource.Restart();
 		}
 	  }
 
-	  public override void onIceServers(IList<PeerConnection.IceServer> iceServers)
+	  public void OnIceServers(IList<PeerConnection.IceServer> iceServers)
 	  {
 		factory = new PeerConnectionFactory();
-		pc = factory.createPeerConnection(iceServers, appRtcClient.pcConstraints(), pcObserver);
+		pc = factory.CreatePeerConnection(iceServers, appRtcClient.pcConstraints(), pcObserver);
 
 		// Uncomment to get ALL WebRTC tracing and SENSITIVE libjingle logging.
 		// NOTE: this _must_ happen while |factory| is alive!
@@ -224,27 +204,27 @@ namespace org.appspot.apprtc
 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
 //ORIGINAL LINE: final Runnable repeatedStatsLogger = new Runnable()
 		  Runnable repeatedStatsLogger = new RunnableAnonymousInnerClassHelper(this, finalPC);
-		  vsv.postDelayed(repeatedStatsLogger, 10000);
+		  vsv.PostDelayed(repeatedStatsLogger, 10000);
 		}
 
 		{
 		  logAndToast("Creating local video source...");
-		  MediaStream lMS = factory.createLocalMediaStream("ARDAMS");
+		  MediaStream lMS = factory.CreateLocalMediaStream("ARDAMS");
 		  if (appRtcClient.videoConstraints() != null)
 		  {
 			VideoCapturer capturer = VideoCapturer;
-			videoSource = factory.createVideoSource(capturer, appRtcClient.videoConstraints());
-			VideoTrack videoTrack = factory.createVideoTrack("ARDAMSv0", videoSource);
-			videoTrack.addRenderer(new VideoRenderer(new VideoCallbacks(this, vsv, VideoStreamsView.Endpoint.LOCAL)));
-			lMS.addTrack(videoTrack);
+			videoSource = factory.CreateVideoSource(capturer, appRtcClient.videoConstraints());
+			VideoTrack videoTrack = factory.CreateVideoTrack("ARDAMSv0", videoSource);
+			videoTrack.AddRenderer(new VideoRenderer(new VideoCallbacks(this, vsv, VideoStreamsView.Endpoint.LOCAL)));
+			lMS.AddTrack(videoTrack);
 		  }
-		  lMS.addTrack(factory.createAudioTrack("ARDAMSa0"));
-		  pc.addStream(lMS, new MediaConstraints());
+		  lMS.AddTrack(factory.CreateAudioTrack("ARDAMSa0"));
+		  pc.AddStream(lMS, new MediaConstraints());
 		}
 		logAndToast("Waiting for ICE candidates...");
 	  }
 
-	  private class RunnableAnonymousInnerClassHelper : Runnable
+	  private class RunnableAnonymousInnerClassHelper : Java.Lang.Object, IRunnable
 	  {
 		  private readonly AppRTCDemoActivity outerInstance;
 
@@ -256,7 +236,7 @@ namespace org.appspot.apprtc
 			  this.finalPC = finalPC;
 		  }
 
-		  public virtual void run()
+		  public void Run()
 		  {
 			lock (outerInstance.quit[0])
 			{
@@ -266,8 +246,8 @@ namespace org.appspot.apprtc
 			  }
 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
 //ORIGINAL LINE: final Runnable runnableThis = this;
-			  Runnable runnableThis = this;
-			  bool success = finalPC.getStats(new StatsObserverAnonymousInnerClassHelper(this, runnableThis), null);
+			  IRunnable runnableThis = this;
+			  bool success = finalPC.GetStats(new StatsObserverAnonymousInnerClassHelper(this, runnableThis), null);
 			  if (!success)
 			  {
 				throw new Exception("getStats() return false!");
@@ -275,7 +255,7 @@ namespace org.appspot.apprtc
 			}
 		  }
 
-		  private class StatsObserverAnonymousInnerClassHelper : StatsObserver
+		  private class StatsObserverAnonymousInnerClassHelper : Java.Lang.Object, IStatsObserver
 		  {
 			  private readonly RunnableAnonymousInnerClassHelper outerInstance;
 
@@ -287,13 +267,13 @@ namespace org.appspot.apprtc
 				  this.runnableThis = runnableThis;
 			  }
 
-			  public virtual void onComplete(StatsReport[] reports)
+			  public void OnComplete(StatsReport[] reports)
 			  {
 				foreach (StatsReport report in reports)
 				{
-				  Log.d(TAG, "Stats: " + report.ToString());
+				  Log.Debug(TAG, "Stats: " + report.ToString());
 				}
-				outerInstance.outerInstance.vsv.postDelayed(runnableThis, 10000);
+				outerInstance.outerInstance.vsv.PostDelayed(runnableThis, 10000);
 			  }
 		  }
 	  }
@@ -314,7 +294,7 @@ namespace org.appspot.apprtc
 				foreach (int orientation in cameraOrientation)
 				{
 				  string name = "Camera " + index + ", Facing " + facing + ", Orientation " + orientation;
-				  VideoCapturer capturer = VideoCapturer.create(name);
+				  VideoCapturer capturer = VideoCapturer.Create(name);
 				  if (capturer != null)
 				  {
 					logAndToast("Using camera: " + name);
@@ -327,10 +307,10 @@ namespace org.appspot.apprtc
 		  }
 	  }
 
-	  protected internal override void onDestroy()
+	  protected internal void OnDestroy()
 	  {
 		disconnectAndExit();
-		base.onDestroy();
+		base.OnDestroy();
 	  }
 
 	  // Poor-man's assert(): die with |msg| unless |condition| is true.
@@ -345,13 +325,13 @@ namespace org.appspot.apprtc
 	  // Log |msg| and Toast about it.
 	  private void logAndToast(string msg)
 	  {
-		Log.d(TAG, msg);
+		Log.Debug(TAG, msg);
 		if (logToast != null)
 		{
-		  logToast.cancel();
+		  logToast.Cancel();
 		}
-		logToast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
-		logToast.show();
+		logToast = Toast.MakeText(this, msg, ToastLength.Short);
+		logToast.Show();
 	  }
 
 	  // Send |json| to the underlying AppEngine Channel.
@@ -365,11 +345,11 @@ namespace org.appspot.apprtc
 	  {
 		try
 		{
-		  json.put(key, value);
+		  json.Put(key, value);
 		}
 		catch (JSONException e)
 		{
-		  throw new Exception(e);
+		  throw new Exception("Error", e);
 		}
 	  }
 
@@ -388,20 +368,20 @@ namespace org.appspot.apprtc
 			continue;
 		  }
 		  Matcher isac16kMatcher = isac16kPattern.matcher(lines[i]);
-		  if (isac16kMatcher.matches())
+		  if (isac16kMatcher.Matches())
 		  {
-			isac16kRtpMap = isac16kMatcher.group(1);
+			isac16kRtpMap = isac16kMatcher.Group(1);
 			continue;
 		  }
 		}
 		if (mLineIndex == -1)
 		{
-		  Log.d(TAG, "No m=audio line, so can't prefer iSAC");
+		  Log.Debug(TAG, "No m=audio line, so can't prefer iSAC");
 		  return sdpDescription;
 		}
 		if (isac16kRtpMap == null)
 		{
-		  Log.d(TAG, "No ISAC/16000 line, so can't prefer iSAC");
+		  Log.Debug(TAG, "No ISAC/16000 line, so can't prefer iSAC");
 		  return sdpDescription;
 		}
 		string[] origMLineParts = lines[mLineIndex].Split(" ", true);
@@ -429,7 +409,7 @@ namespace org.appspot.apprtc
 	  }
 
 	  // Implementation detail: observe ICE & stream changes and react accordingly.
-	  private class PCObserver : PeerConnection.Observer
+	  private class PCObserver : Java.Lang.Object, PeerConnection.IObserver
 	  {
 		  private readonly AppRTCDemoActivity outerInstance;
 
@@ -438,14 +418,12 @@ namespace org.appspot.apprtc
 			  this.outerInstance = outerInstance;
 		  }
 
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-//ORIGINAL LINE: @Override public void onIceCandidate(final org.webrtc.IceCandidate candidate)
-		public override void onIceCandidate(IceCandidate candidate)
+		public void OnIceCandidate(IceCandidate candidate)
 		{
-		  runOnUiThread(new RunnableAnonymousInnerClassHelper2(this, candidate));
+		  outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper2(this, candidate));
 		}
 
-		private class RunnableAnonymousInnerClassHelper2 : Runnable
+		private class RunnableAnonymousInnerClassHelper2 : Java.Lang.Object, IRunnable
 		{
 			private readonly PCObserver outerInstance;
 
@@ -457,23 +435,23 @@ namespace org.appspot.apprtc
 				this.candidate = candidate;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
 			  JSONObject json = new JSONObject();
 			  jsonPut(json, "type", "candidate");
-			  jsonPut(json, "label", candidate.sdpMLineIndex);
-			  jsonPut(json, "id", candidate.sdpMid);
-			  jsonPut(json, "candidate", candidate.sdp);
+			  jsonPut(json, "label", candidate.SdpMLineIndex);
+			  jsonPut(json, "id", candidate.SdpMid);
+			  jsonPut(json, "candidate", candidate.Sdp);
 			  outerInstance.outerInstance.sendMessage(json);
 			}
 		}
 
-		public override void onError()
+		public void OnError()
 		{
-		  runOnUiThread(new RunnableAnonymousInnerClassHelper3(this));
+		  outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper3(this));
 		}
 
-		private class RunnableAnonymousInnerClassHelper3 : Runnable
+		private class RunnableAnonymousInnerClassHelper3 : Java.Lang.Object, IRunnable
 		{
 			private readonly PCObserver outerInstance;
 
@@ -482,32 +460,30 @@ namespace org.appspot.apprtc
 				this.outerInstance = outerInstance;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
 			  throw new Exception("PeerConnection error!");
 			}
 		}
 
-		public override void onSignalingChange(PeerConnection.SignalingState newState)
+		public void OnSignalingChange(PeerConnection.SignalingState newState)
 		{
 		}
 
-		public override void onIceConnectionChange(PeerConnection.IceConnectionState newState)
+		public void OnIceConnectionChange(PeerConnection.IceConnectionState newState)
 		{
 		}
 
-		public override void onIceGatheringChange(PeerConnection.IceGatheringState newState)
+		public void OnIceGatheringChange(PeerConnection.IceGatheringState newState)
 		{
 		}
 
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-//ORIGINAL LINE: @Override public void onAddStream(final org.webrtc.MediaStream stream)
-		public override void onAddStream(MediaStream stream)
+		public void OnAddStream(MediaStream stream)
 		{
-		  runOnUiThread(new RunnableAnonymousInnerClassHelper4(this, stream));
+		  outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper4(this, stream));
 		}
 
-		private class RunnableAnonymousInnerClassHelper4 : Runnable
+		private class RunnableAnonymousInnerClassHelper4 : Java.Lang.Object, IRunnable
 		{
 			private readonly PCObserver outerInstance;
 
@@ -519,24 +495,22 @@ namespace org.appspot.apprtc
 				this.stream = stream;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
-			  abortUnless(stream.audioTracks.size() <= 1 && stream.videoTracks.size() <= 1, "Weird-looking stream: " + stream);
-			  if (stream.videoTracks.size() == 1)
+			  abortUnless(stream.AudioTracks.Size() <= 1 && stream.VideoTracks.Size() <= 1, "Weird-looking stream: " + stream);
+			  if (stream.VideoTracks.Size() == 1)
 			  {
-				stream.videoTracks.get(0).addRenderer(new VideoRenderer(new VideoCallbacks(outerInstance.outerInstance, outerInstance.outerInstance.vsv, VideoStreamsView.Endpoint.REMOTE)));
+				stream.VideoTracks.Get(0).AddRenderer(new VideoRenderer(new VideoCallbacks(outerInstance.outerInstance, outerInstance.outerInstance.vsv, VideoStreamsView.Endpoint.REMOTE)));
 			  }
 			}
 		}
 
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-//ORIGINAL LINE: @Override public void onRemoveStream(final org.webrtc.MediaStream stream)
-		public override void onRemoveStream(MediaStream stream)
+		public void OnRemoveStream(MediaStream stream)
 		{
-		  runOnUiThread(new RunnableAnonymousInnerClassHelper5(this, stream));
+		  outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper5(this, stream));
 		}
 
-		private class RunnableAnonymousInnerClassHelper5 : Runnable
+		private class RunnableAnonymousInnerClassHelper5 : Java.Lang.Object, IRunnable
 		{
 			private readonly PCObserver outerInstance;
 
@@ -548,20 +522,18 @@ namespace org.appspot.apprtc
 				this.stream = stream;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
-			  stream.videoTracks.get(0).dispose();
+			  stream.VideoTracks.Get(0).Dispose();
 			}
 		}
 
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-//ORIGINAL LINE: @Override public void onDataChannel(final org.webrtc.DataChannel dc)
-		public override void onDataChannel(DataChannel dc)
+		public void OnDataChannel(DataChannel dc)
 		{
-		  runOnUiThread(new RunnableAnonymousInnerClassHelper6(this, dc));
+		  outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper6(this, dc));
 		}
 
-		private class RunnableAnonymousInnerClassHelper6 : Runnable
+		private class RunnableAnonymousInnerClassHelper6 : Java.Lang.Object, IRunnable
 		{
 			private readonly PCObserver outerInstance;
 
@@ -573,16 +545,14 @@ namespace org.appspot.apprtc
 				this.dc = dc;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
-			  throw new Exception("AppRTC doesn't use data channels, but got: " + dc.label() + " anyway!");
+			  throw new Exception("AppRTC doesn't use data channels, but got: " + dc.Label() + " anyway!");
 			}
 		}
 	  }
 
-	  // Implementation detail: handle offer creation/signaling and answer setting,
-	  // as well as adding remote ICE candidates once the answer SDP is set.
-	  private class SDPObserver : SdpObserver
+	  private class SDPObserver : Java.Lang.Object, ISdpObserver
 	  {
 		  private readonly AppRTCDemoActivity outerInstance;
 
@@ -591,14 +561,12 @@ namespace org.appspot.apprtc
 			  this.outerInstance = outerInstance;
 		  }
 
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-//ORIGINAL LINE: @Override public void onCreateSuccess(final org.webrtc.SessionDescription origSdp)
-		public override void onCreateSuccess(SessionDescription origSdp)
+		public void OnCreateSuccess(SessionDescription origSdp)
 		{
-		  runOnUiThread(new RunnableAnonymousInnerClassHelper(this, origSdp));
+		  outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this, origSdp));
 		}
 
-		private class RunnableAnonymousInnerClassHelper : Runnable
+		private class RunnableAnonymousInnerClassHelper : Java.Lang.Object, IRunnable
 		{
 			private readonly SDPObserver outerInstance;
 
@@ -610,24 +578,24 @@ namespace org.appspot.apprtc
 				this.origSdp = origSdp;
 			}
 
-			public virtual void run()
+			public virtual void Run()
 			{
 			  outerInstance.outerInstance.logAndToast("Sending " + origSdp.type);
-			  SessionDescription sdp = new SessionDescription(origSdp.type, outerInstance.outerInstance.preferISAC(origSdp.description));
+			  SessionDescription sdp = new SessionDescription(origSdp.type, outerInstance.outerInstance.preferISAC(origSdp.Description));
 			  JSONObject json = new JSONObject();
 			  jsonPut(json, "type", sdp.type.canonicalForm());
-			  jsonPut(json, "sdp", sdp.description);
+			  jsonPut(json, "sdp", sdp.Description);
 			  outerInstance.outerInstance.sendMessage(json);
-			  outerInstance.outerInstance.pc.setLocalDescription(outerInstance.outerInstance.sdpObserver, sdp);
+			  outerInstance.outerInstance.pc.SetLocalDescription(outerInstance.outerInstance.sdpObserver, sdp);
 			}
 		}
 
-		public override void onSetSuccess()
+		public void OnSetSuccess()
 		{
-		  runOnUiThread(new RunnableAnonymousInnerClassHelper2(this));
+		  outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper2(this));
 		}
 
-		private class RunnableAnonymousInnerClassHelper2 : Runnable
+		private class RunnableAnonymousInnerClassHelper2 : Java.Lang.Object, IRunnable
 		{
 			private readonly SDPObserver outerInstance;
 
@@ -636,7 +604,7 @@ namespace org.appspot.apprtc
 				this.outerInstance = outerInstance;
 			}
 
-			public virtual void run()
+			public virtual void Run()
 			{
 			  if (outerInstance.outerInstance.appRtcClient.Initiator)
 			  {
@@ -653,7 +621,7 @@ namespace org.appspot.apprtc
 				{
 				  // We just set the remote offer, time to create our answer.
 				  outerInstance.outerInstance.logAndToast("Creating answer");
-				  outerInstance.outerInstance.pc.createAnswer(outerInstance, outerInstance.outerInstance.sdpMediaConstraints);
+				  outerInstance.outerInstance.pc.CreateAnswer(outerInstance, outerInstance.outerInstance.sdpMediaConstraints);
 				}
 				else
 				{
@@ -665,14 +633,12 @@ namespace org.appspot.apprtc
 			}
 		}
 
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-//ORIGINAL LINE: @Override public void onCreateFailure(final String error)
-		public override void onCreateFailure(string error)
+		public void OnCreateFailure(string error)
 		{
-		  runOnUiThread(new RunnableAnonymousInnerClassHelper3(this, error));
+		  outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper3(this, error));
 		}
 
-		private class RunnableAnonymousInnerClassHelper3 : Runnable
+		private class RunnableAnonymousInnerClassHelper3 : Java.Lang.Object, IRunnable
 		{
 			private readonly SDPObserver outerInstance;
 
@@ -684,20 +650,18 @@ namespace org.appspot.apprtc
 				this.error = error;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
 			  throw new Exception("createSDP error: " + error);
 			}
 		}
 
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-//ORIGINAL LINE: @Override public void onSetFailure(final String error)
-		public override void onSetFailure(string error)
+		public void OnSetFailure(string error)
 		{
-		  runOnUiThread(new RunnableAnonymousInnerClassHelper4(this, error));
+		  outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper4(this, error));
 		}
 
-		private class RunnableAnonymousInnerClassHelper4 : Runnable
+		private class RunnableAnonymousInnerClassHelper4 : Java.Lang.Object, IRunnable
 		{
 			private readonly SDPObserver outerInstance;
 
@@ -709,7 +673,7 @@ namespace org.appspot.apprtc
 				this.error = error;
 			}
 
-			public virtual void run()
+			public virtual void Run()
 			{
 			  throw new Exception("setSDP error: " + error);
 			}
@@ -719,7 +683,7 @@ namespace org.appspot.apprtc
 		{
 		  foreach (IceCandidate candidate in outerInstance.queuedRemoteCandidates)
 		  {
-			outerInstance.pc.addIceCandidate(candidate);
+			outerInstance.pc.AddIceCandidate(candidate);
 		  }
 		  outerInstance.queuedRemoteCandidates = null;
 		}
@@ -745,7 +709,7 @@ namespace org.appspot.apprtc
 			return;
 		  }
 		  outerInstance.logAndToast("Creating offer...");
-		  outerInstance.pc.createOffer(outerInstance.sdpObserver, outerInstance.sdpMediaConstraints);
+		  outerInstance.pc.CreateOffer(outerInstance.sdpObserver, outerInstance.sdpMediaConstraints);
 		}
 
 //JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
@@ -755,23 +719,23 @@ namespace org.appspot.apprtc
 		  try
 		  {
 			JSONObject json = new JSONObject(data);
-			string type = (string) json.get("type");
+			string type = (string) json.Get("type");
 			if (type.Equals("candidate"))
 			{
-			  IceCandidate candidate = new IceCandidate((string) json.get("id"), json.getInt("label"), (string) json.get("candidate"));
+			  IceCandidate candidate = new IceCandidate((string) json.Get("id"), json.GetInt("label"), (string) json.Get("candidate"));
 			  if (outerInstance.queuedRemoteCandidates != null)
 			  {
 				outerInstance.queuedRemoteCandidates.AddLast(candidate);
 			  }
 			  else
 			  {
-				outerInstance.pc.addIceCandidate(candidate);
+				outerInstance.pc.AddIceCandidate(candidate);
 			  }
 			}
 			else if (type.Equals("answer") || type.Equals("offer"))
 			{
-			  SessionDescription sdp = new SessionDescription(SessionDescription.Type.fromCanonicalForm(type), outerInstance.preferISAC((string) json.get("sdp")));
-			  outerInstance.pc.setRemoteDescription(outerInstance.sdpObserver, sdp);
+			  SessionDescription sdp = new SessionDescription(SessionDescription.Type.FromCanonicalForm(type), outerInstance.preferISAC((string) json.Get("sdp")));
+			  outerInstance.pc.SetRemoteDescription(outerInstance.sdpObserver, sdp);
 			}
 			else if (type.Equals("bye"))
 			{
@@ -785,7 +749,7 @@ namespace org.appspot.apprtc
 		  }
 		  catch (JSONException e)
 		  {
-			throw new Exception(e);
+			throw new Exception("Error", e);
 		  }
 		}
 
@@ -816,7 +780,7 @@ namespace org.appspot.apprtc
 		  quit[0] = true;
 		  if (pc != null)
 		  {
-			pc.dispose();
+			pc.Dispose();
 			pc = null;
 		  }
 		  if (appRtcClient != null)
@@ -827,21 +791,21 @@ namespace org.appspot.apprtc
 		  }
 		  if (videoSource != null)
 		  {
-			videoSource.dispose();
+			videoSource.Dispose();
 			videoSource = null;
 		  }
 		  if (factory != null)
 		  {
-			factory.dispose();
+			factory.Dispose();
 			factory = null;
 		  }
-		  finish();
+		  Finish();
 		}
 	  }
 
 	  // Implementation detail: bridge the VideoRenderer.Callbacks interface to the
 	  // VideoStreamsView implementation.
-	  private class VideoCallbacks : VideoRenderer.Callbacks
+	  private class VideoCallbacks : Java.Lang.Object, VideoRenderer.ICallbacks
 	  {
 		  private readonly AppRTCDemoActivity outerInstance;
 
@@ -857,12 +821,12 @@ namespace org.appspot.apprtc
 
 //JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
 //ORIGINAL LINE: @Override public void setSize(final int width, final int height)
-		public override void setSize(int width, int height)
+		public void SetSize(int width, int height)
 		{
-		  view.queueEvent(new RunnableAnonymousInnerClassHelper(this, width, height));
+		  view.QueueEvent(new RunnableAnonymousInnerClassHelper(this, width, height));
 		}
 
-		private class RunnableAnonymousInnerClassHelper : Runnable
+		private class RunnableAnonymousInnerClassHelper : Java.Lang.Object, IRunnable
 		{
 			private readonly VideoCallbacks outerInstance;
 
@@ -876,13 +840,13 @@ namespace org.appspot.apprtc
 				this.height = height;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
 			  outerInstance.view.setSize(outerInstance.stream, width, height);
 			}
 		}
 
-		public override void renderFrame(VideoRenderer.I420Frame frame)
+		public void RenderFrame(VideoRenderer.I420Frame frame)
 		{
 		  view.queueFrame(stream, frame);
 		}

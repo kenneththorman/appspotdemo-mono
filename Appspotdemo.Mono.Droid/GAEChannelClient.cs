@@ -25,18 +25,13 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace org.appspot.apprtc
+using Android.App;
+using Android.Util;
+using Android.Webkit;
+using Java.Lang;
+
+namespace Appspotdemo.Mono.Droid
 {
-
-	using SuppressLint = android.annotation.SuppressLint;
-	using Activity = android.app.Activity;
-	using Log = android.util.Log;
-	using ConsoleMessage = android.webkit.ConsoleMessage;
-	using JavascriptInterface = android.webkit.JavascriptInterface;
-	using WebChromeClient = android.webkit.WebChromeClient;
-	using WebView = android.webkit.WebView;
-	using WebViewClient = android.webkit.WebViewClient;
-
 	/// <summary>
 	/// Java-land version of Google AppEngine's JavaScript Channel API:
 	/// https://developers.google.com/appengine/docs/python/channel/javascript
@@ -91,7 +86,7 @@ namespace org.appspot.apprtc
 
 		  public virtual bool onConsoleMessage(ConsoleMessage msg)
 		  {
-			Log.d(TAG, "console: " + msg.message() + " at " + msg.sourceId() + ":" + msg.lineNumber());
+			Log.Debug(TAG, "console: " + msg.Message() + " at " + msg.SourceId() + ":" + msg.LineNumber());
 			return false;
 		  }
 	  }
@@ -120,8 +115,8 @@ namespace org.appspot.apprtc
 		  return;
 		}
 		proxyingMessageHandler.disconnect();
-		webView.removeJavascriptInterface("androidMessageHandler");
-		webView.loadUrl("about:blank");
+		webView.RemoveJavascriptInterface("androidMessageHandler");
+		webView.LoadUrl("about:blank");
 		webView = null;
 	  }
 
@@ -165,10 +160,10 @@ namespace org.appspot.apprtc
 //ORIGINAL LINE: @JavascriptInterface public void onOpen()
 		public virtual void onOpen()
 		{
-		  activity.runOnUiThread(new RunnableAnonymousInnerClassHelper(this));
+		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this));
 		}
 
-		private class RunnableAnonymousInnerClassHelper : Runnable
+		private class RunnableAnonymousInnerClassHelper : Object, IRunnable
 		{
 			private readonly ProxyingMessageHandler outerInstance;
 
@@ -177,7 +172,7 @@ namespace org.appspot.apprtc
 				this.outerInstance = outerInstance;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
 			  if (!outerInstance.disconnected())
 			  {
@@ -191,10 +186,10 @@ namespace org.appspot.apprtc
 //JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
 		public virtual void onMessage(string data)
 		{
-		  activity.runOnUiThread(new RunnableAnonymousInnerClassHelper2(this, data));
+		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper2(this, data));
 		}
 
-		private class RunnableAnonymousInnerClassHelper2 : Runnable
+		private class RunnableAnonymousInnerClassHelper2 : Java.Lang.Object, IRunnable
 		{
 			private readonly ProxyingMessageHandler outerInstance;
 
@@ -206,7 +201,7 @@ namespace org.appspot.apprtc
 				this.data = data;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
 			  if (!outerInstance.disconnected())
 			  {
@@ -219,10 +214,10 @@ namespace org.appspot.apprtc
 //ORIGINAL LINE: @JavascriptInterface public void onClose()
 		public virtual void onClose()
 		{
-		  activity.runOnUiThread(new RunnableAnonymousInnerClassHelper3(this));
+		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper3(this));
 		}
 
-		private class RunnableAnonymousInnerClassHelper3 : Runnable
+		private class RunnableAnonymousInnerClassHelper3 : Object, IRunnable
 		{
 			private readonly ProxyingMessageHandler outerInstance;
 
@@ -231,7 +226,7 @@ namespace org.appspot.apprtc
 				this.outerInstance = outerInstance;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
 			  if (!outerInstance.disconnected())
 			  {
@@ -245,10 +240,10 @@ namespace org.appspot.apprtc
 //JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
 		public virtual void onError(int code, string description)
 		{
-		  activity.runOnUiThread(new RunnableAnonymousInnerClassHelper4(this, code, description));
+		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper4(this, code, description));
 		}
 
-		private class RunnableAnonymousInnerClassHelper4 : Runnable
+		private class RunnableAnonymousInnerClassHelper4 : Object, IRunnable
 		{
 			private readonly ProxyingMessageHandler outerInstance;
 
@@ -262,7 +257,7 @@ namespace org.appspot.apprtc
 				this.description = description;
 			}
 
-			public virtual void run()
+			public void Run()
 			{
 			  if (!outerInstance.disconnected())
 			  {

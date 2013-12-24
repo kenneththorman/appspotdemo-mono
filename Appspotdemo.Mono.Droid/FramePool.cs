@@ -30,7 +30,7 @@
 namespace org.appspot.apprtc
 {
 
-	using I420Frame = org.webrtc.VideoRenderer.I420Frame;
+	using I420Frame = Org.Webrtc.VideoRenderer.I420Frame;
 
 
 	/// <summary>

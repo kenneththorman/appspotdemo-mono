@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-/*
+﻿/*
  * libjingle
  * Copyright 2013, Google Inc.
  *
@@ -27,21 +24,17 @@ using System.Collections.Generic;
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+using System;
+using System.Collections.Generic;
+using Android.App;
+using Android.OS;
+using Android.Util;
+using Java.IO;
+using Java.Net;
+using Org.Webrtc;
 
-namespace org.appspot.apprtc
+namespace Appspotdemo.Mono.Droid
 {
-
-	using Activity = android.app.Activity;
-	using AsyncTask = android.os.AsyncTask;
-	using Log = android.util.Log;
-
-	using JSONArray = org.json.JSONArray;
-	using JSONException = org.json.JSONException;
-	using JSONObject = org.json.JSONObject;
-	using MediaConstraints = org.webrtc.MediaConstraints;
-	using PeerConnection = org.webrtc.PeerConnection;
-
-
 	/// <summary>
 	/// Negotiates signaling for chatting with apprtc.appspot.com "rooms".
 	/// Uses the client<->server specifics of the apprtc AppEngine webapp.
@@ -88,10 +81,10 @@ namespace org.appspot.apprtc
 		while (url.IndexOf('?') < 0)
 		{
 		  // Keep redirecting until we get a room number.
-		  (new RedirectResolver(this)).execute(url);
+		  (new RedirectResolver(this)).Execute(url);
 		  return; // RedirectResolver above calls us back with the next URL.
 		}
-		(new RoomParameterGetter(this)).execute(url);
+		(new RoomParameterGetter(this)).Execute(url);
 	  }
 
 	  /// <summary>
@@ -190,7 +183,7 @@ namespace org.appspot.apprtc
 		  }
 		  catch (IOException e)
 		  {
-			throw new Exception(e);
+			throw new Exception("Error",e);
 		  }
 		}
 
@@ -203,18 +196,18 @@ namespace org.appspot.apprtc
 //ORIGINAL LINE: private String followRedirect(String url) throws java.io.IOException
 		internal virtual string followRedirect(string url)
 		{
-		  HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
+		  HttpURLConnection connection = (HttpURLConnection) (new URL(url)).OpenConnection();
 		  connection.InstanceFollowRedirects = false;
-		  int code = connection.ResponseCode;
-		  if (code != HttpURLConnection.HTTP_MOVED_TEMP)
+		  int code = (int)connection.ResponseCode;
+		  if (code != (int)HttpURLConnection.HttpMovedTemp)
 		  {
 			throw new IOException("Unexpected response: " + code + " for " + url + ", with contents: " + drainStream(connection.InputStream));
 		  }
 		  int n = 0;
 		  string name, value;
-		  while ((name = connection.getHeaderFieldKey(n)) != null)
+		  while ((name = connection.GetHeaderFieldKey(n)) != null)
 		  {
-			value = connection.getHeaderField(n);
+			value = connection.GetHeaderField(n);
 			if (name.Equals("Location"))
 			{
 			  return value;

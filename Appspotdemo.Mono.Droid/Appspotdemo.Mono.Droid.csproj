@@ -66,6 +66,7 @@
     <AndroidResource Include="Resources\Drawable-ldpi\ic_launcher.png" />
     <AndroidResource Include="Resources\Drawable-hdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\Values\strings.xml" />
+    <Compile Include="StringHelperClass.cs" />
     <Compile Include="VideoStreamsView.cs" />
     <Compile Include="UnhandledExceptionHandler.cs" />
     <None Include="java\AndroidManifest.xml" />
@@ -97,6 +98,12 @@
   <ItemGroup>
     <Folder Include="Resources\Drawable\" />
     <Folder Include="Resources\Layout\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Org.Webrtc\Org.Webrtc.csproj">
+      <Project>{413d69ae-11fe-4a56-8a7d-1ce25eeb74f6}</Project>
+      <Name>Org.Webrtc</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

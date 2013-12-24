@@ -1,6 +1,4 @@
-﻿using System;
-
-/*
+﻿/*
  * libjingle
  * Copyright 2013, Google Inc.
  *
@@ -26,18 +24,23 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+using Java.Lang;
+using Java.Nio;
+using Javax.Microedition.Khronos.Egl;
+using Javax.Microedition.Khronos.Opengles;
+using Exception = System.Exception;
 
 namespace org.appspot.apprtc
 {
 
-	using Context = android.content.Context;
-	using Point = android.graphics.Point;
-	using Rect = android.graphics.Rect;
-	using GLES20 = android.opengl.GLES20;
-	using GLSurfaceView = android.opengl.GLSurfaceView;
-	using Log = android.util.Log;
+	using Context = Android.Content.Context;
+	using Point = Android.Graphics.Point;
+	using Rect = Android.Graphics.Rect;
+	using GLES20 = Android.Opengl.GLES20;
+	using GLSurfaceView = Android.Opengl.GLSurfaceView;
+	using Log = Android.Util.Log;
 
-	using I420Frame = org.webrtc.VideoRenderer.I420Frame;
+	using I420Frame = Org.Webrtc.VideoRenderer.I420Frame;
 
 
 
@@ -48,7 +51,7 @@ namespace org.appspot.apprtc
 	/// other public methods of this class are of interest to clients (only to system
 	/// classes).
 	/// </summary>
-	public class VideoStreamsView : GLSurfaceView, GLSurfaceView.Renderer
+	public class VideoStreamsView : GLSurfaceView, GLSurfaceView.IRenderer
 	{
 
 	  /// <summary>
@@ -91,14 +94,14 @@ namespace org.appspot.apprtc
 		abortUnless(framePool.validateDimensions(frame), "Frame too large!");
 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
 //ORIGINAL LINE: final org.webrtc.VideoRenderer.I420Frame frameCopy = framePool.takeFrame(frame).copyFrom(frame);
-		I420Frame frameCopy = framePool.takeFrame(frame).copyFrom(frame);
+		I420Frame frameCopy = framePool.takeFrame(frame).CopyFrom(frame);
 		bool needToScheduleRender;
 		lock (framesToRender)
 		{
 		  // A new render needs to be scheduled (via updateFrames()) iff there isn't
 		  // already a render scheduled, which is true iff framesToRender is empty.
 		  needToScheduleRender = framesToRender.Empty;
-		  I420Frame frameToDrop = framesToRender.put(stream, frameCopy);
+		  I420Frame frameToDrop = framesToRender.Put(stream, frameCopy);
 		  if (frameToDrop != null)
 		  {
 			framePool.returnFrame(frameToDrop);
@@ -110,7 +113,7 @@ namespace org.appspot.apprtc
 		}
 	  }
 
-	  private class RunnableAnonymousInnerClassHelper : Runnable
+	  private class RunnableAnonymousInnerClassHelper : Object, IRunnable
 	  {
 		  private readonly VideoStreamsView outerInstance;
 
@@ -119,7 +122,7 @@ namespace org.appspot.apprtc
 			  this.outerInstance = outerInstance;
 		  }
 
-		  public virtual void run()
+		  public void Run()
 		  {
 			outerInstance.updateFrames();
 		  }
@@ -156,18 +159,18 @@ namespace org.appspot.apprtc
 		// Generate 3 texture ids for Y/U/V and place them into |textures|,
 		// allocating enough storage for |width|x|height| pixels.
 		int[] textures = yuvTextures[stream == Endpoint.LOCAL ? 0 : 1];
-		GLES20.glGenTextures(3, textures, 0);
+		GLES20.GlGenTextures(3, textures, 0);
 		for (int i = 0; i < 3; ++i)
 		{
 		  int w = i == 0 ? width : width / 2;
 		  int h = i == 0 ? height : height / 2;
-		  GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
-		  GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[i]);
-		  GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, w, h, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, null);
-		  GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-		  GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-		  GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-		  GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+		  GLES20.GlActiveTexture(GLES20.GL_TEXTURE0 + i);
+		  GLES20.GlBindTexture(GLES20.GL_TEXTURE_2D, textures[i]);
+		  GLES20.GlTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, w, h, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, null);
+		  GLES20.GlTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+		  GLES20.GlTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+		  GLES20.GlTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+		  GLES20.GlTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 		}
 		checkNoGLES2Error();
 	  }
@@ -180,52 +183,52 @@ namespace org.appspot.apprtc
 
 	  public override void onSurfaceChanged(GL10 unused, int width, int height)
 	  {
-		GLES20.glViewport(0, 0, width, height);
+		GLES20.GlViewport(0, 0, width, height);
 		checkNoGLES2Error();
 	  }
 
-	  public override void onDrawFrame(GL10 unused)
+	  public void OnDrawFrame(IGL10 unused)
 	  {
-		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+		GLES20.GlClear(GLES20.GlColorBufferBit);
 		drawRectangle(yuvTextures[1], remoteVertices);
 		drawRectangle(yuvTextures[0], localVertices);
 		++numFramesSinceLastLog;
-		long now = System.nanoTime();
+		long now = JavaSystem.NanoTime();
 		if (lastFPSLogTime == -1 || now - lastFPSLogTime > 1e9)
 		{
 		  double fps = numFramesSinceLastLog / ((now - lastFPSLogTime) / 1e9);
-		  Log.d(TAG, "Rendered FPS: " + fps);
+		  Log.Debug(TAG, "Rendered FPS: " + fps);
 		  lastFPSLogTime = now;
 		  numFramesSinceLastLog = 1;
 		}
 		checkNoGLES2Error();
 	  }
 
-	  public override void onSurfaceCreated(GL10 unused, EGLConfig config)
+	  public void OnSurfaceCreated(IGL10 unused, EGLConfig config)
 	  {
-		int program = GLES20.glCreateProgram();
-		addShaderTo(GLES20.GL_VERTEX_SHADER, VERTEX_SHADER_STRING, program);
-		addShaderTo(GLES20.GL_FRAGMENT_SHADER, FRAGMENT_SHADER_STRING, program);
+		int program = GLES20.GlCreateProgram();
+		addShaderTo(GLES20.GlVertexShader, VERTEX_SHADER_STRING, program);
+		addShaderTo(GLES20.GlFragmentShader, FRAGMENT_SHADER_STRING, program);
 
-		GLES20.glLinkProgram(program);
-		int[] result = new int[] {GLES20.GL_FALSE};
-		result[0] = GLES20.GL_FALSE;
-		GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, result, 0);
-		abortUnless(result[0] == GLES20.GL_TRUE, GLES20.glGetProgramInfoLog(program));
-		GLES20.glUseProgram(program);
+		GLES20.GlLinkProgram(program);
+		int[] result = new int[] {GLES20.GlFalse};
+		result[0] = GLES20.GlFalse;
+		GLES20.GlGetProgramiv(program, GLES20.GlLinkStatus, result, 0);
+		abortUnless(result[0] == GLES20.GlTrue, GLES20.GlGetProgramInfoLog(program));
+		GLES20.GlUseProgram(program);
 
-		GLES20.glUniform1i(GLES20.glGetUniformLocation(program, "y_tex"), 0);
-		GLES20.glUniform1i(GLES20.glGetUniformLocation(program, "u_tex"), 1);
-		GLES20.glUniform1i(GLES20.glGetUniformLocation(program, "v_tex"), 2);
+		GLES20.GlUniform1i(GLES20.GlGetUniformLocation(program, "y_tex"), 0);
+		GLES20.GlUniform1i(GLES20.GlGetUniformLocation(program, "u_tex"), 1);
+		GLES20.GlUniform1i(GLES20.GlGetUniformLocation(program, "v_tex"), 2);
 
 		// Actually set in drawRectangle(), but queried only once here.
-		posLocation = GLES20.glGetAttribLocation(program, "in_pos");
+		posLocation = GLES20.GlGetAttribLocation(program, "in_pos");
 
-		int tcLocation = GLES20.glGetAttribLocation(program, "in_tc");
-		GLES20.glEnableVertexAttribArray(tcLocation);
-		GLES20.glVertexAttribPointer(tcLocation, 2, GLES20.GL_FLOAT, false, 0, textureCoords);
+		int tcLocation = GLES20.GlGetAttribLocation(program, "in_tc");
+		GLES20.GlEnableVertexAttribArray(tcLocation);
+		GLES20.GlVertexAttribPointer(tcLocation, 2, GLES20.GlFloat, false, 0, textureCoords);
 
-		GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		GLES20.GlClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		checkNoGLES2Error();
 	  }
 
@@ -244,12 +247,12 @@ namespace org.appspot.apprtc
 		for (int i = 0; i < 3; ++i)
 		{
 		  ByteBuffer plane = frame.yuvPlanes[i];
-		  GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
-		  GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[i]);
+		  GLES20.GlActiveTexture(GLES20.GL_TEXTURE0 + i);
+		  GLES20.GlBindTexture(GLES20.GL_TEXTURE_2D, textures[i]);
 		  int w = i == 0 ? frame.width : frame.width / 2;
 		  int h = i == 0 ? frame.height : frame.height / 2;
 		  abortUnless(w == frame.yuvStrides[i], frame.yuvStrides[i] + "!=" + w);
-		  GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, w, h, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, plane);
+		  GLES20.GlTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, w, h, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, plane);
 		}
 		checkNoGLES2Error();
 	  }
@@ -259,28 +262,28 @@ namespace org.appspot.apprtc
 	  {
 		for (int i = 0; i < 3; ++i)
 		{
-		  GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
-		  GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[i]);
+		  GLES20.GlActiveTexture(GLES20.GlTexture0 + i);
+		  GLES20.GlBindTexture(GLES20.GlTexture2d, textures[i]);
 		}
 
-		GLES20.glVertexAttribPointer(posLocation, 2, GLES20.GL_FLOAT, false, 0, vertices);
-		GLES20.glEnableVertexAttribArray(posLocation);
+		GLES20.GlVertexAttribPointer(posLocation, 2, GLES20.GlFloat, false, 0, vertices);
+		GLES20.GlEnableVertexAttribArray(posLocation);
 
-		GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+		GLES20.GlDrawArrays(GLES20.GlTriangleStrip, 0, 4);
 		checkNoGLES2Error();
 	  }
 
 	  // Compile & attach a |type| shader specified by |source| to |program|.
 	  private static void addShaderTo(int type, string source, int program)
 	  {
-		int[] result = new int[] {GLES20.GL_FALSE};
-		int shader = GLES20.glCreateShader(type);
-		GLES20.glShaderSource(shader, source);
-		GLES20.glCompileShader(shader);
-		GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, 0);
-		abortUnless(result[0] == GLES20.GL_TRUE, GLES20.glGetShaderInfoLog(shader) + ", source: " + source);
-		GLES20.glAttachShader(program, shader);
-		GLES20.glDeleteShader(shader);
+		int[] result = new int[] {GLES20.GlFalse};
+		int shader = GLES20.GlCreateShader(type);
+		GLES20.GlShaderSource(shader, source);
+		GLES20.GlCompileShader(shader);
+		GLES20.GlGetShaderiv(shader, GLES20.GlCompileStatus, result, 0);
+		abortUnless(result[0] == GLES20.GlTrue, GLES20.GlGetShaderInfoLog(shader) + ", source: " + source);
+		GLES20.GlAttachShader(program, shader);
+		GLES20.GlDeleteShader(shader);
 		checkNoGLES2Error();
 	  }
 
@@ -296,8 +299,8 @@ namespace org.appspot.apprtc
 	  // Assert that no OpenGL ES 2.0 error has been raised.
 	  private static void checkNoGLES2Error()
 	  {
-		int error = GLES20.glGetError();
-		abortUnless(error == GLES20.GL_NO_ERROR, "GLES20 error: " + error);
+		int error = GLES20.GlGetError();
+		abortUnless(error == GLES20.GlNoError, "GLES20 error: " + error);
 	  }
 
 	  // Remote image should span the full screen.
