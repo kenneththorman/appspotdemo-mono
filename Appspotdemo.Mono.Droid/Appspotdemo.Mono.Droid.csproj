@@ -51,10 +51,33 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="java\ant.properties" />
+    <None Include="java\gen\R.java.d" />
+    <None Include="java\libs\armeabi-v7a\libjingle_peerconnection_so.so" />
+    <None Include="java\project.properties" />
+    <None Include="java\README" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="java\AndroidManifest.xml" />
+    <None Include="java\assets\channel.html" />
+    <None Include="java\build.xml" />
+    <None Include="java\gen\org\appspot\apprtc\BuildConfig.java" />
+    <None Include="java\gen\org\appspot\apprtc\R.java" />
+    <None Include="java\jni\Android.mk" />
+    <None Include="java\libs\libjingle_peerconnection.jar" />
+    <None Include="java\res\drawable-hdpi\ic_launcher.png" />
+    <None Include="java\res\drawable-ldpi\ic_launcher.png" />
+    <None Include="java\res\drawable-mdpi\ic_launcher.png" />
+    <None Include="java\res\drawable-xhdpi\ic_launcher.png" />
+    <None Include="java\res\values\strings.xml" />
+    <None Include="java\src\org\appspot\apprtc\AppRTCClient.java" />
+    <None Include="java\src\org\appspot\apprtc\AppRTCDemoActivity.java" />
+    <None Include="java\src\org\appspot\apprtc\FramePool.java" />
+    <None Include="java\src\org\appspot\apprtc\GAEChannelClient.java" />
+    <None Include="java\src\org\appspot\apprtc\UnhandledExceptionHandler.java" />
+    <None Include="java\src\org\appspot\apprtc\VideoStreamsView.java" />
     <Content Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
