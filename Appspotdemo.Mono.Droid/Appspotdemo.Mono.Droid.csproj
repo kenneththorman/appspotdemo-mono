@@ -85,6 +85,7 @@
     <None Include="java\src\org\appspot\apprtc\UnhandledExceptionHandler.java" />
     <None Include="java\src\org\appspot\apprtc\VideoStreamsView.java" />
     <AndroidJavaLibrary Include="lib\libjingle_peerconnection.jar" />
+    <AndroidAsset Include="Assets\channel.html" />
     <Content Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
