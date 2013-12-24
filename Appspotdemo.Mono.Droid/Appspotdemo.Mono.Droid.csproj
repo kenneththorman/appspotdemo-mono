@@ -56,6 +56,7 @@
     <None Include="java\libs\armeabi-v7a\libjingle_peerconnection_so.so" />
     <None Include="java\project.properties" />
     <None Include="java\README" />
+    <AndroidNativeLibrary Include="lib\armeabi-v7a\libjingle_peerconnection_so.so" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
@@ -78,6 +79,7 @@
     <None Include="java\src\org\appspot\apprtc\GAEChannelClient.java" />
     <None Include="java\src\org\appspot\apprtc\UnhandledExceptionHandler.java" />
     <None Include="java\src\org\appspot\apprtc\VideoStreamsView.java" />
+    <AndroidJavaLibrary Include="lib\libjingle_peerconnection.jar" />
     <Content Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
