@@ -58,7 +58,7 @@ namespace Appspotdemo.Mono.Droid
 
 //JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
 //ORIGINAL LINE: public void uncaughtException(Thread unusedThread, final Throwable e)
-	  public void UncaughtException(Thread unusedThread, Java.Lang.Exception e)
+	  public void UncaughtException(Java.Lang.Thread unusedThread, Java.Lang.Throwable e)
 	  {
 		activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this, e));
 	  }
@@ -81,7 +81,7 @@ namespace Appspotdemo.Mono.Droid
 			string msg = getRecursiveStackTrace(e);
 			TextView errorView = new TextView(outerInstance.activity);
 			errorView.Text = msg;
-			errorView.SetTextSize(TypedValue.COMPLEX_UNIT_SP, 8);
+			errorView.SetTextSize(ComplexUnitType.Sp, 8);
 			ScrollView scrollingContainer = new ScrollView(outerInstance.activity);
 			scrollingContainer.AddView(errorView);
 			Log.Error(TAG, title + "\n\n" + msg);
@@ -122,9 +122,7 @@ namespace Appspotdemo.Mono.Droid
 	  // through all Causes that led to |t|.
 	  private static string getRecursiveStackTrace(Exception t)
 	  {
-		StringWriter writer = new StringWriter();
-		t.PrintStackTrace(new PrintWriter(writer));
-		return writer.ToString();
+		  return t.StackTrace;
 	  }
 
 	}
