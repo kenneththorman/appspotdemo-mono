@@ -68,11 +68,11 @@ namespace Appspotdemo.Mono.Droid
 	  {
 		webView = new WebView(activity);
 		webView.Settings.JavaScriptEnabled = true;
-		webView.WebChromeClient = new WebChromeClientAnonymousInnerClassHelper(this); // Purely for debugging.
-		webView.WebViewClient = new WebViewClientAnonymousInnerClassHelper(this); // Purely for debugging.
+		//webView.WebChromeClient = new WebChromeClientAnonymousInnerClassHelper(this); // Purely for debugging.
+		//webView.WebViewClient = new WebViewClientAnonymousInnerClassHelper(this); // Purely for debugging.
 		proxyingMessageHandler = new ProxyingMessageHandler(activity, handler, token);
-		webView.addJavascriptInterface(proxyingMessageHandler, "androidMessageHandler");
-		webView.loadUrl("file:///android_asset/channel.html");
+		webView.AddJavascriptInterface(proxyingMessageHandler, "androidMessageHandler");
+		webView.LoadUrl("file:///android_asset/channel.html");
 	  }
 
 	  private class WebChromeClientAnonymousInnerClassHelper : WebChromeClient
@@ -102,7 +102,7 @@ namespace Appspotdemo.Mono.Droid
 
 		  public virtual void onReceivedError(WebView view, int errorCode, string description, string failingUrl)
 		  {
-			Log.e(TAG, "JS error: " + errorCode + " in " + failingUrl + ", desc: " + description);
+			Log.Error(TAG, "JS error: " + errorCode + " in " + failingUrl + ", desc: " + description);
 		  }
 	  }
 
@@ -122,7 +122,7 @@ namespace Appspotdemo.Mono.Droid
 
 	  // Helper class for proxying callbacks from the Java<->JS interaction
 	  // (private, background) thread to the Activity's UI thread.
-	  private class ProxyingMessageHandler
+	  private class ProxyingMessageHandler : Java.Lang.Object
 	  {
 		internal readonly Activity activity;
 		internal readonly MessageHandler handler;

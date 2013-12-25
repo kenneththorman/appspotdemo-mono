@@ -43,7 +43,7 @@ namespace Appspotdemo.Mono.Droid
 	{
 	  // Maps each summary code (see summarizeFrameDimensions()) to a list of frames
 	  // of that description.
-	  private readonly Dictionary<long?, LinkedList<VideoRenderer.I420Frame>> availableFrames = new Dictionary<long?, LinkedList<VideoRenderer.I420Frame>>();
+	  private readonly Dictionary<long?, Stack<VideoRenderer.I420Frame>> availableFrames = new Dictionary<long?, Stack<VideoRenderer.I420Frame>>();
 	  // Every dimension (e.g. width, height, stride) of a frame must be less than
 	  // this value.
 	  private const long MAX_DIMENSION = 4096;
@@ -54,19 +54,19 @@ namespace Appspotdemo.Mono.Droid
 		VideoRenderer.I420Frame dst = null;
 		lock (availableFrames)
 		{
-		  LinkedList<VideoRenderer.I420Frame> frames = availableFrames[desc];
+		  Stack<VideoRenderer.I420Frame> frames = availableFrames[desc];
 		  if (frames == null)
 		  {
-			frames = new LinkedList<VideoRenderer.I420Frame>();
+			frames = new Stack<VideoRenderer.I420Frame>();
 			availableFrames[desc] = frames;
 		  }
 		  if (frames.Count > 0)
 		  {
-			dst = frames.pop();
+			dst = frames.Pop();
 		  }
 		  else
 		  {
-			dst = new VideoRenderer.I420Frame(source.width, source.height, source.yuvStrides, null);
+			dst = new VideoRenderer.I420Frame(source.Width, source.Height, source.YuvStrides, null);
 		  }
 		}
 		return dst;
@@ -77,12 +77,12 @@ namespace Appspotdemo.Mono.Droid
 		long desc = summarizeFrameDimensions(frame);
 		lock (availableFrames)
 		{
-		  LinkedList<VideoRenderer.I420Frame> frames = availableFrames[desc];
+		  Stack<VideoRenderer.I420Frame> frames = availableFrames[desc];
 		  if (frames == null)
 		  {
 			throw new System.ArgumentException("Unexpected frame dimensions");
 		  }
-		  frames.AddLast(frame);
+		  frames.Push(frame);
 		}
 	  }
 
@@ -90,7 +90,7 @@ namespace Appspotdemo.Mono.Droid
 	  /// Validate that |frame| can be managed by the pool. </summary>
 	  public static bool validateDimensions(VideoRenderer.I420Frame frame)
 	  {
-		return frame.width < MAX_DIMENSION && frame.height < MAX_DIMENSION && frame.yuvStrides[0] < MAX_DIMENSION && frame.yuvStrides[1] < MAX_DIMENSION && frame.yuvStrides[2] < MAX_DIMENSION;
+		return frame.Width < MAX_DIMENSION && frame.Height < MAX_DIMENSION && frame.YuvStrides[0] < MAX_DIMENSION && frame.YuvStrides[1] < MAX_DIMENSION && frame.YuvStrides[2] < MAX_DIMENSION;
 	  }
 
 	  // Return a code summarizing the dimensions of |frame|.  Two frames that
@@ -99,11 +99,11 @@ namespace Appspotdemo.Mono.Droid
 	  // to do a good job, and hashCode() returns int, so we do this.
 	  private static long summarizeFrameDimensions(VideoRenderer.I420Frame frame)
 	  {
-		long ret = frame.width;
-		ret = ret * MAX_DIMENSION + frame.height;
-		ret = ret * MAX_DIMENSION + frame.yuvStrides[0];
-		ret = ret * MAX_DIMENSION + frame.yuvStrides[1];
-		ret = ret * MAX_DIMENSION + frame.yuvStrides[2];
+		long ret = frame.Width;
+		ret = ret * MAX_DIMENSION + frame.Height;
+		ret = ret * MAX_DIMENSION + frame.YuvStrides[0];
+		ret = ret * MAX_DIMENSION + frame.YuvStrides[1];
+		ret = ret * MAX_DIMENSION + frame.YuvStrides[2];
 		return ret;
 	  }
 	}

@@ -36,6 +36,7 @@ using Javax.Microedition.Khronos.Opengles;
 using Org.Webrtc;
 using Exception = System.Exception;
 
+
 namespace Appspotdemo.Mono.Droid
 {
 	/// <summary>
@@ -175,7 +176,7 @@ namespace Appspotdemo.Mono.Droid
 		SetMeasuredDimension(screenDimensions.X, screenDimensions.Y);
 	  }
 
-	  public void OnSurfaceChanged(GL10 unused, int width, int height)
+	  public void OnSurfaceChanged(IGL10 unused, int width, int height)
 	  {
 		GLES20.GlViewport(0, 0, width, height);
 		checkNoGLES2Error();

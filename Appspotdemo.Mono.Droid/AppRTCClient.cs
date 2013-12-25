@@ -31,6 +31,7 @@ using Android.OS;
 using Android.Util;
 using Java.IO;
 using Java.Net;
+using Org.Json;
 using Org.Webrtc;
 
 namespace Appspotdemo.Mono.Droid
@@ -451,14 +452,14 @@ namespace Appspotdemo.Mono.Droid
 		}
 		catch (JSONException e)
 		{
-		  throw new Exception(e);
+		  throw new Exception("Error", e);
 		}
 	  }
 
 	  // Request an attempt to drain the send queue, on a background thread.
 	  private void requestQueueDrainInBackground()
 	  {
-		(new AsyncTaskAnonymousInnerClassHelper(this)).execute();
+		(new AsyncTaskAnonymousInnerClassHelper(this)).Execute();
 	  }
 
 	  private class AsyncTaskAnonymousInnerClassHelper : AsyncTask<Void, Void, Void>
