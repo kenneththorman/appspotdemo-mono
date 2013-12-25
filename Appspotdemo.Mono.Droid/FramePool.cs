@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-
 /*
  * libjingle
  * Copyright 2013, Google Inc.
@@ -26,13 +25,10 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+using Org.Webrtc;
 
-namespace org.appspot.apprtc
+namespace Appspotdemo.Mono.Droid
 {
-
-	using I420Frame = Org.Webrtc.VideoRenderer.I420Frame;
-
-
 	/// <summary>
 	/// This class acts as an allocation pool meant to minimize GC churn caused by
 	/// frame allocation & disposal.  The public API comprises of just two methods:
@@ -47,21 +43,21 @@ namespace org.appspot.apprtc
 	{
 	  // Maps each summary code (see summarizeFrameDimensions()) to a list of frames
 	  // of that description.
-	  private readonly Dictionary<long?, LinkedList<I420Frame>> availableFrames = new Dictionary<long?, LinkedList<I420Frame>>();
+	  private readonly Dictionary<long?, LinkedList<VideoRenderer.I420Frame>> availableFrames = new Dictionary<long?, LinkedList<VideoRenderer.I420Frame>>();
 	  // Every dimension (e.g. width, height, stride) of a frame must be less than
 	  // this value.
 	  private const long MAX_DIMENSION = 4096;
 
-	  public virtual I420Frame takeFrame(I420Frame source)
+	  public virtual VideoRenderer.I420Frame takeFrame(VideoRenderer.I420Frame source)
 	  {
 		long desc = summarizeFrameDimensions(source);
-		I420Frame dst = null;
+		VideoRenderer.I420Frame dst = null;
 		lock (availableFrames)
 		{
-		  LinkedList<I420Frame> frames = availableFrames[desc];
+		  LinkedList<VideoRenderer.I420Frame> frames = availableFrames[desc];
 		  if (frames == null)
 		  {
-			frames = new LinkedList<I420Frame>();
+			frames = new LinkedList<VideoRenderer.I420Frame>();
 			availableFrames[desc] = frames;
 		  }
 		  if (frames.Count > 0)
@@ -70,18 +66,18 @@ namespace org.appspot.apprtc
 		  }
 		  else
 		  {
-			dst = new I420Frame(source.width, source.height, source.yuvStrides, null);
+			dst = new VideoRenderer.I420Frame(source.width, source.height, source.yuvStrides, null);
 		  }
 		}
 		return dst;
 	  }
 
-	  public virtual void returnFrame(I420Frame frame)
+	  public virtual void returnFrame(VideoRenderer.I420Frame frame)
 	  {
 		long desc = summarizeFrameDimensions(frame);
 		lock (availableFrames)
 		{
-		  LinkedList<I420Frame> frames = availableFrames[desc];
+		  LinkedList<VideoRenderer.I420Frame> frames = availableFrames[desc];
 		  if (frames == null)
 		  {
 			throw new System.ArgumentException("Unexpected frame dimensions");
@@ -92,7 +88,7 @@ namespace org.appspot.apprtc
 
 	  /// <summary>
 	  /// Validate that |frame| can be managed by the pool. </summary>
-	  public static bool validateDimensions(I420Frame frame)
+	  public static bool validateDimensions(VideoRenderer.I420Frame frame)
 	  {
 		return frame.width < MAX_DIMENSION && frame.height < MAX_DIMENSION && frame.yuvStrides[0] < MAX_DIMENSION && frame.yuvStrides[1] < MAX_DIMENSION && frame.yuvStrides[2] < MAX_DIMENSION;
 	  }
@@ -101,7 +97,7 @@ namespace org.appspot.apprtc
 	  // return the same summary are guaranteed to be able to store each others'
 	  // contents.  Used like Object.hashCode(), but we need all the bits of a long
 	  // to do a good job, and hashCode() returns int, so we do this.
-	  private static long summarizeFrameDimensions(I420Frame frame)
+	  private static long summarizeFrameDimensions(VideoRenderer.I420Frame frame)
 	  {
 		long ret = frame.width;
 		ret = ret * MAX_DIMENSION + frame.height;

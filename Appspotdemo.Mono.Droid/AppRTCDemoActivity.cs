@@ -35,7 +35,6 @@ using Android.Util;
 using Android.Widget;
 using Java.Lang;
 using Java.Util.Regex;
-using org.appspot.apprtc;
 using Org.Json;
 using Org.Webrtc;
 using Exception = System.Exception;

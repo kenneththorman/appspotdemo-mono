@@ -24,26 +24,20 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+using Android.Content;
+using Android.Graphics;
+using Android.Opengl;
+using Android.Util;
 using Java.Lang;
 using Java.Nio;
 using Javax.Microedition.Khronos.Egl;
 using Javax.Microedition.Khronos.Opengles;
+using Org.Webrtc;
 using Exception = System.Exception;
 
-namespace org.appspot.apprtc
+namespace Appspotdemo.Mono.Droid
 {
-
-	using Context = Android.Content.Context;
-	using Point = Android.Graphics.Point;
-	using Rect = Android.Graphics.Rect;
-	using GLES20 = Android.Opengl.GLES20;
-	using GLSurfaceView = Android.Opengl.GLSurfaceView;
-	using Log = Android.Util.Log;
-
-	using I420Frame = Org.Webrtc.VideoRenderer.I420Frame;
-
-
-
 	/// <summary>
 	/// A GLSurfaceView{,.Renderer} that efficiently renders YUV frames from local &
 	/// remote VideoTracks using the GPU for CSC.  Clients will want to call the
@@ -68,11 +62,11 @@ namespace org.appspot.apprtc
 	  // [0] are local Y,U,V, [1] are remote Y,U,V.
 	  private int[][] yuvTextures = new int[][] {new int[] {-1, -1, -1}, new int[] {-1, -1, -1}};
 	  private int posLocation = -1;
-	  private long lastFPSLogTime = System.nanoTime();
+	  private long lastFPSLogTime = Java.Lang.JavaSystem.NanoTime();
 	  private long numFramesSinceLastLog = 0;
 	  private FramePool framePool = new FramePool();
 	  // Accessed on multiple threads!  Must be synchronized.
-	  private EnumMap<Endpoint, I420Frame> framesToRender = new EnumMap<Endpoint, I420Frame>(typeof(Endpoint));
+	  private EnumMap<Endpoint, VideoRenderer.I420Frame> framesToRender = new EnumMap<Endpoint, VideoRenderer.I420Frame>(typeof(Endpoint));
 
 	  public VideoStreamsView(Context c, Point screenDimensions) : base(c)
 	  {
@@ -87,21 +81,21 @@ namespace org.appspot.apprtc
 	  /// Queue |frame| to be uploaded. </summary>
 //JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
 //ORIGINAL LINE: public void queueFrame(final Endpoint stream, org.webrtc.VideoRenderer.I420Frame frame)
-	  public virtual void queueFrame(Endpoint stream, I420Frame frame)
+	  public virtual void queueFrame(Endpoint stream, VideoRenderer.I420Frame frame)
 	  {
 		// Paying for the copy of the YUV data here allows CSC and painting time
 		// to get spent on the render thread instead of the UI thread.
 		abortUnless(framePool.validateDimensions(frame), "Frame too large!");
 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
 //ORIGINAL LINE: final org.webrtc.VideoRenderer.I420Frame frameCopy = framePool.takeFrame(frame).copyFrom(frame);
-		I420Frame frameCopy = framePool.takeFrame(frame).CopyFrom(frame);
+		VideoRenderer.I420Frame frameCopy = framePool.takeFrame(frame).CopyFrom(frame);
 		bool needToScheduleRender;
 		lock (framesToRender)
 		{
 		  // A new render needs to be scheduled (via updateFrames()) iff there isn't
 		  // already a render scheduled, which is true iff framesToRender is empty.
 		  needToScheduleRender = framesToRender.Empty;
-		  I420Frame frameToDrop = framesToRender.Put(stream, frameCopy);
+		  VideoRenderer.I420Frame frameToDrop = framesToRender.Put(stream, frameCopy);
 		  if (frameToDrop != null)
 		  {
 			framePool.returnFrame(frameToDrop);
@@ -131,8 +125,8 @@ namespace org.appspot.apprtc
 	  // Upload the planes from |framesToRender| to the textures owned by this View.
 	  private void updateFrames()
 	  {
-		I420Frame localFrame = null;
-		I420Frame remoteFrame = null;
+		VideoRenderer.I420Frame localFrame = null;
+		VideoRenderer.I420Frame remoteFrame = null;
 		lock (framesToRender)
 		{
 		  localFrame = framesToRender.remove(Endpoint.LOCAL);
@@ -164,24 +158,24 @@ namespace org.appspot.apprtc
 		{
 		  int w = i == 0 ? width : width / 2;
 		  int h = i == 0 ? height : height / 2;
-		  GLES20.GlActiveTexture(GLES20.GL_TEXTURE0 + i);
-		  GLES20.GlBindTexture(GLES20.GL_TEXTURE_2D, textures[i]);
-		  GLES20.GlTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, w, h, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, null);
-		  GLES20.GlTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-		  GLES20.GlTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-		  GLES20.GlTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-		  GLES20.GlTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+		  GLES20.GlActiveTexture(GLES20.GlTexture0 + i);
+		  GLES20.GlBindTexture(GLES20.GlTexture2d, textures[i]);
+		  GLES20.GlTexImage2D(GLES20.GlTexture2d, 0, GLES20.GlLuminance, w, h, 0, GLES20.GlLuminance, GLES20.GlUnsignedByte, null);
+		  GLES20.GlTexParameterf(GLES20.GlTexture2d, GLES20.GlTextureMinFilter, GLES20.GlLinear);
+		  GLES20.GlTexParameterf(GLES20.GlTexture2d, GLES20.GlTextureMagFilter, GLES20.GlLinear);
+		  GLES20.GlTexParameterf(GLES20.GlTexture2d, GLES20.GlTextureWrapS, GLES20.GlClampToEdge);
+		  GLES20.GlTexParameterf(GLES20.GlTexture2d, GLES20.GlTextureWrapT, GLES20.GlClampToEdge);
 		}
 		checkNoGLES2Error();
 	  }
 
-	  protected internal override void onMeasure(int unusedX, int unusedY)
+	  protected internal void OnMeasure(int unusedX, int unusedY)
 	  {
 		// Go big or go home!
-		setMeasuredDimension(screenDimensions.x, screenDimensions.y);
+		SetMeasuredDimension(screenDimensions.X, screenDimensions.Y);
 	  }
 
-	  public override void onSurfaceChanged(GL10 unused, int width, int height)
+	  public void OnSurfaceChanged(GL10 unused, int width, int height)
 	  {
 		GLES20.GlViewport(0, 0, width, height);
 		checkNoGLES2Error();
@@ -235,14 +229,14 @@ namespace org.appspot.apprtc
 	  // Wrap a float[] in a direct FloatBuffer using native byte order.
 	  private static FloatBuffer directNativeFloatBuffer(float[] array)
 	  {
-		FloatBuffer buffer = ByteBuffer.allocateDirect(array.Length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		buffer.put(array);
-		buffer.flip();
+		FloatBuffer buffer = ByteBuffer.AllocateDirect(array.Length * 4).Order(ByteOrder.NativeOrder()).AsFloatBuffer();
+		buffer.Put(array);
+		buffer.Flip();
 		return buffer;
 	  }
 
 	  // Upload the YUV planes from |frame| to |textures|.
-	  private void texImage2D(I420Frame frame, int[] textures)
+	  private void texImage2D(VideoRenderer.I420Frame frame, int[] textures)
 	  {
 		for (int i = 0; i < 3; ++i)
 		{
