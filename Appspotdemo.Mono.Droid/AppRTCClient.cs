@@ -31,8 +31,11 @@ using Android.OS;
 using Android.Util;
 using Java.IO;
 using Java.Net;
+using Java.Util;
+using Java.Util.Regex;
 using Org.Json;
 using Org.Webrtc;
+using Pattern = Android.OS.Pattern;
 
 namespace Appspotdemo.Mono.Droid
 {
@@ -274,7 +277,7 @@ namespace Appspotdemo.Mono.Droid
 		  string roomHtml = drainStream((new URL(url)).openConnection().InputStream);
 
 		  Matcher fullRoomMatcher = fullRoomPattern.matcher(roomHtml);
-		  if (fullRoomMatcher.find())
+		  if (fullRoomMatcher.Find())
 		  {
 			throw new IOException("Room is full!");
 		  }
@@ -288,7 +291,7 @@ namespace Appspotdemo.Mono.Droid
 		  bool isTurnPresent = false;
 		  foreach (PeerConnection.IceServer server in iceServers)
 		  {
-			if (server.uri.StartsWith("turn:"))
+			if (server.Uri.StartsWith("turn:"))
 			{
 			  isTurnPresent = true;
 			  break;
@@ -300,11 +303,11 @@ namespace Appspotdemo.Mono.Droid
 		  }
 
 		  MediaConstraints pcConstraints = constraintsFromJSON(getVarValue(roomHtml, "pcConstraints", false));
-		  Log.d(TAG, "pcConstraints: " + pcConstraints);
+		  Log.Debug(TAG, "pcConstraints: " + pcConstraints);
 
 		  MediaConstraints videoConstraints = constraintsFromJSON(getVideoConstraints(getVarValue(roomHtml, "mediaConstraints", false)));
 
-		  Log.d(TAG, "videoConstraints: " + videoConstraints);
+		  Log.Debug(TAG, "videoConstraints: " + videoConstraints);
 
 		  return new AppRTCSignalingParameters(outerInstance, iceServers, gaeBaseHref, token, postMessageUrl, initiator, pcConstraints, videoConstraints);
 		}
@@ -317,22 +320,22 @@ namespace Appspotdemo.Mono.Droid
 			// Tricksy handling of values that are allowed to be (boolean or
 			// MediaTrackConstraints) by the getUserMedia() spec.  There are three
 			// cases below.
-			if (!json.has("video") || !json.optBoolean("video", true))
+			if (!json.Has("video") || !json.OptBoolean("video", true))
 			{
 			  // Case 1: "video" is not present, or is an explicit "false" boolean.
 			  return null;
 			}
-			if (json.optBoolean("video", false))
+			if (json.OptBoolean("video", false))
 			{
 			  // Case 2: "video" is an explicit "true" boolean.
 			  return "{\"mandatory\": {}, \"optional\": []}";
 			}
 			// Case 3: "video" is an object.
-			return json.getJSONObject("video").ToString();
+			return json.GetJSONObject("video").ToString();
 		  }
 		  catch (JSONException e)
 		  {
-			throw new Exception(e);
+			throw new Exception("Error", e);
 		  }
 		}
 
@@ -346,36 +349,36 @@ namespace Appspotdemo.Mono.Droid
 		  {
 			MediaConstraints constraints = new MediaConstraints();
 			JSONObject json = new JSONObject(jsonString);
-			JSONObject mandatoryJSON = json.optJSONObject("mandatory");
+			JSONObject mandatoryJSON = json.OptJSONObject("mandatory");
 			if (mandatoryJSON != null)
 			{
-			  JSONArray mandatoryKeys = mandatoryJSON.names();
+			  JSONArray mandatoryKeys = mandatoryJSON.Names();
 			  if (mandatoryKeys != null)
 			  {
-				for (int i = 0; i < mandatoryKeys.length(); ++i)
+				for (int i = 0; i < mandatoryKeys.Length(); ++i)
 				{
-				  string key = mandatoryKeys.getString(i);
-				  string value = mandatoryJSON.getString(key);
-				  constraints.mandatory.add(new MediaConstraints.KeyValuePair(key, value));
+				  string key = mandatoryKeys.GetString(i);
+				  string value = mandatoryJSON.GetString(key);
+				  constraints.Mandatory.Add(new MediaConstraints.KeyValuePair(key, value));
 				}
 			  }
 			}
-			JSONArray optionalJSON = json.optJSONArray("optional");
+			JSONArray optionalJSON = json.OptJSONArray("optional");
 			if (optionalJSON != null)
 			{
-			  for (int i = 0; i < optionalJSON.length(); ++i)
+			  for (int i = 0; i < optionalJSON.Length(); ++i)
 			  {
-				JSONObject keyValueDict = optionalJSON.getJSONObject(i);
-				string key = keyValueDict.names().getString(0);
-				string value = keyValueDict.getString(key);
-				constraints.optional.add(new MediaConstraints.KeyValuePair(key, value));
+				JSONObject keyValueDict = optionalJSON.GetJSONObject(i);
+				string key = keyValueDict.Names().GetString(0);
+				string value = keyValueDict.GetString(key);
+				constraints.Optional.Add(new MediaConstraints.KeyValuePair(key, value));
 			  }
 			}
 			return constraints;
 		  }
 		  catch (JSONException e)
 		  {
-			throw new Exception(e);
+			throw new Exception("Error", e);
 		  }
 		}
 
@@ -389,12 +392,12 @@ namespace Appspotdemo.Mono.Droid
 //ORIGINAL LINE: final java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(".*\n *var " + varName + " = ([^\n]*);\n.*");
 		  Pattern pattern = Pattern.compile(".*\n *var " + varName + " = ([^\n]*);\n.*");
 		  Matcher matcher = pattern.matcher(roomHtml);
-		  if (!matcher.find())
+		  if (!matcher.Find())
 		  {
 			throw new IOException("Missing " + varName + " in HTML: " + roomHtml);
 		  }
-		  string varValue = matcher.group(1);
-		  if (matcher.find())
+		  string varValue = matcher.Group(1);
+		  if (matcher.Find())
 		  {
 			throw new IOException("Too many " + varName + " in HTML: " + roomHtml);
 		  }
@@ -411,23 +414,23 @@ namespace Appspotdemo.Mono.Droid
 		{
 		  try
 		  {
-			URLConnection connection = (new URL(url)).openConnection();
-			connection.addRequestProperty("user-agent", "Mozilla/5.0");
-			connection.addRequestProperty("origin", "https://apprtc.appspot.com");
+			URLConnection connection = (new URL(url)).OpenConnection();
+			connection.AddRequestProperty("user-agent", "Mozilla/5.0");
+			connection.AddRequestProperty("origin", "https://apprtc.appspot.com");
 			string response = drainStream(connection.InputStream);
 			JSONObject responseJSON = new JSONObject(response);
-			string uri = responseJSON.getJSONArray("uris").getString(0);
-			string username = responseJSON.getString("username");
-			string password = responseJSON.getString("password");
+			string uri = responseJSON.GetJSONArray("uris").GetString(0);
+			string username = responseJSON.GetString("username");
+			string password = responseJSON.GetString("password");
 			return new PeerConnection.IceServer(uri, username, password);
 		  }
 		  catch (JSONException e)
 		  {
-			throw new Exception(e);
+			throw new Exception("Error", e);
 		  }
 		  catch (IOException e)
 		  {
-			throw new Exception(e);
+			throw new Exception("Error" ,e);
 		  }
 		}
 	  }
@@ -439,13 +442,13 @@ namespace Appspotdemo.Mono.Droid
 		try
 		{
 		  JSONObject json = new JSONObject(pcConfig);
-		  JSONArray servers = json.getJSONArray("iceServers");
+		  JSONArray servers = json.GetJSONArray("iceServers");
 		  LinkedList<PeerConnection.IceServer> ret = new LinkedList<PeerConnection.IceServer>();
-		  for (int i = 0; i < servers.length(); ++i)
+		  for (int i = 0; i < servers.Length(); ++i)
 		  {
-			JSONObject server = servers.getJSONObject(i);
-			string url = server.getString("url");
-			string credential = server.has("credential") ? server.getString("credential") : "";
+			JSONObject server = servers.GetJSONObject(i);
+			string url = server.GetString("url");
+			string credential = server.Has("credential") ? server.GetString("credential") : "";
 			ret.AddLast(new PeerConnection.IceServer(url, "", credential));
 		  }
 		  return ret;
@@ -491,12 +494,12 @@ namespace Appspotdemo.Mono.Droid
 		  {
 			foreach (string msg in sendQueue)
 			{
-			  URLConnection connection = (new URL(appRTCSignalingParameters.gaeBaseHref + appRTCSignalingParameters.postMessageUrl)).openConnection();
+			  URLConnection connection = (new URL(appRTCSignalingParameters.gaeBaseHref + appRTCSignalingParameters.postMessageUrl)).OpenConnection();
 			  connection.DoOutput = true;
-			  connection.OutputStream.write(msg.GetBytes("UTF-8"));
-			  if (!connection.getHeaderField(null).StartsWith("HTTP/1.1 200 "))
+			  connection.OutputStream.Write(msg.GetBytes("UTF-8"));
+			  if (!connection.GetHeaderField(null).StartsWith("HTTP/1.1 200 "))
 			  {
-				throw new IOException("Non-200 response to POST: " + connection.getHeaderField(null) + " for msg: " + msg);
+				throw new IOException("Non-200 response to POST: " + connection.GetHeaderField(null) + " for msg: " + msg);
 			  }
 			}
 		  }
@@ -511,8 +514,8 @@ namespace Appspotdemo.Mono.Droid
 	  // Return the contents of an InputStream as a String.
 	  private static string drainStream(InputStream @in)
 	  {
-		Scanner s = (new Scanner(@in)).useDelimiter("\\A");
-		return s.hasNext() ? s.next() : "";
+		Scanner s = (new Scanner(@in)).UseDelimiter("\\A");
+		return s.HasNext ? s.Next() : "";
 	  }
 	}
 
