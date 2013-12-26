@@ -51,6 +51,7 @@ namespace Appspotdemo.Mono.Droid
 	/// between the Android/Java implementation of PeerConnection and the
 	/// apprtc.appspot.com demo webapp.
 	/// </summary>
+	[Activity(Label = "Appspotdemo.Mono.Droid", MainLauncher = true, Icon = "@drawable/ic_launcher")]
 	public class AppRTCDemoActivity : Activity, AppRTCClient.IceServersObserver
 	{
 		private bool InstanceFieldsInitialized = false;
