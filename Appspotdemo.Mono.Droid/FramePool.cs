@@ -44,7 +44,7 @@ namespace Appspotdemo.Mono.Droid
 	{
 	  // Maps each summary code (see summarizeFrameDimensions()) to a list of frames
 	  // of that description.
-	  private readonly Dictionary<long?, Stack<VideoRenderer.I420Frame>> availableFrames = new Dictionary<long?, Stack<VideoRenderer.I420Frame>>();
+	  private readonly Dictionary<long, Stack<VideoRenderer.I420Frame>> availableFrames = new Dictionary<long, Stack<VideoRenderer.I420Frame>>();
 	  // Every dimension (e.g. width, height, stride) of a frame must be less than
 	  // this value.
 	  private const long MAX_DIMENSION = 4096;
