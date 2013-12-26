@@ -73,9 +73,9 @@ namespace Appspotdemo.Mono.Droid
 	  {
 		this.screenDimensions = screenDimensions;
 		PreserveEGLContextOnPause = true;
-		EGLContextClientVersion = 2;
-		Renderer = this;
-		RenderMode = RENDERMODE_WHEN_DIRTY;
+		SetEGLContextClientVersion(2);
+		SetRenderer(this);
+		RenderMode = Rendermode.WhenDirty;
 	  }
 
 	  /// <summary>
@@ -241,13 +241,13 @@ namespace Appspotdemo.Mono.Droid
 	  {
 		for (int i = 0; i < 3; ++i)
 		{
-		  ByteBuffer plane = frame.yuvPlanes[i];
-		  GLES20.GlActiveTexture(GLES20.GL_TEXTURE0 + i);
-		  GLES20.GlBindTexture(GLES20.GL_TEXTURE_2D, textures[i]);
-		  int w = i == 0 ? frame.width : frame.width / 2;
-		  int h = i == 0 ? frame.height : frame.height / 2;
-		  abortUnless(w == frame.yuvStrides[i], frame.yuvStrides[i] + "!=" + w);
-		  GLES20.GlTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, w, h, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, plane);
+		  ByteBuffer plane = frame.YuvPlanes[i];
+		  GLES20.GlActiveTexture(GLES20.GlTexture0 + i);
+		  GLES20.GlBindTexture(GLES20.GlTexture2d, textures[i]);
+		  int w = i == 0 ? frame.Width : frame.Width / 2;
+		  int h = i == 0 ? frame.Height : frame.Height / 2;
+		  abortUnless(w == frame.YuvStrides[i], frame.YuvStrides[i] + "!=" + w);
+		  GLES20.GlTexImage2D(GLES20.GlTexture2d, 0, GLES20.GlLuminance, w, h, 0, GLES20.GlLuminance, GLES20.GlUnsignedByte, plane);
 		}
 		checkNoGLES2Error();
 	  }

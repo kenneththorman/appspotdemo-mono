@@ -166,7 +166,7 @@ namespace Appspotdemo.Mono.Droid
 
 	  // Load the given URL and return the value of the Location header of the
 	  // resulting 302 response.  If the result is not a 302, throws.
-	  private class RedirectResolver : AsyncTask<string, Void, string>
+	  private class RedirectResolver : AsyncTask<string, int, string>
 	  {
 		  private readonly AppRTCClient outerInstance;
 
@@ -175,7 +175,7 @@ namespace Appspotdemo.Mono.Droid
 			  this.outerInstance = outerInstance;
 		  }
 
-		protected internal override string doInBackground(params string[] urls)
+		protected override string RunInBackground(params string[] urls)
 		{
 		  if (urls.Length != 1)
 		  {
@@ -191,7 +191,7 @@ namespace Appspotdemo.Mono.Droid
 		  }
 		}
 
-		protected internal override void onPostExecute(string url)
+		protected override void OnPostExecute(string url)
 		{
 		  outerInstance.connectToRoom(url);
 		}
@@ -224,7 +224,7 @@ namespace Appspotdemo.Mono.Droid
 
 	  // AsyncTask that converts an AppRTC room URL into the set of signaling
 	  // parameters to use with that room.
-	  private class RoomParameterGetter : AsyncTask<string, Void, AppRTCSignalingParameters>
+	  private class RoomParameterGetter : AsyncTask<string, int, AppRTCSignalingParameters>
 	  {
 		  private readonly AppRTCClient outerInstance;
 
@@ -233,7 +233,7 @@ namespace Appspotdemo.Mono.Droid
 			  this.outerInstance = outerInstance;
 		  }
 
-		protected internal override AppRTCSignalingParameters doInBackground(params string[] urls)
+		protected override AppRTCSignalingParameters RunInBackground(params string[] urls)
 		{
 		  if (urls.Length != 1)
 		  {
@@ -249,7 +249,7 @@ namespace Appspotdemo.Mono.Droid
 		  }
 		}
 
-		protected internal override void onPostExecute(AppRTCSignalingParameters @params)
+		protected override void OnPostExecute(AppRTCSignalingParameters @params)
 		{
 		  outerInstance.channelClient = new GAEChannelClient(outerInstance.activity, @params.channelToken, outerInstance.gaeHandler);
 		  lock (outerInstance.sendQueue)
@@ -465,7 +465,7 @@ namespace Appspotdemo.Mono.Droid
 		(new AsyncTaskAnonymousInnerClassHelper(this)).Execute();
 	  }
 
-	  private class AsyncTaskAnonymousInnerClassHelper : AsyncTask<Void, Void, Void>
+	  private class AsyncTaskAnonymousInnerClassHelper : AsyncTask<string, int, string>
 	  {
 		  private readonly AppRTCClient outerInstance;
 
@@ -474,7 +474,7 @@ namespace Appspotdemo.Mono.Droid
 			  this.outerInstance = outerInstance;
 		  }
 
-		  public virtual Void doInBackground(params Void[] unused)
+		  protected override string RunInBackground(string[] unused)
 		  {
 			outerInstance.maybeDrainQueue();
 			return null;
@@ -496,7 +496,7 @@ namespace Appspotdemo.Mono.Droid
 			{
 			  URLConnection connection = (new URL(appRTCSignalingParameters.gaeBaseHref + appRTCSignalingParameters.postMessageUrl)).OpenConnection();
 			  connection.DoOutput = true;
-			  connection.OutputStream.Write(msg.GetBytes("UTF-8"));
+			  connection.OutputStream.Write(msg.GetBytes("UTF-8"), 0, msg.Length-1);
 			  if (!connection.GetHeaderField(null).StartsWith("HTTP/1.1 200 "))
 			  {
 				throw new IOException("Non-200 response to POST: " + connection.GetHeaderField(null) + " for msg: " + msg);

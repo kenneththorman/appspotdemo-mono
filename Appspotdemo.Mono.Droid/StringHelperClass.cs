@@ -66,17 +66,17 @@ namespace Appspotdemo.Mono.Droid
 		//--------------------------------------------------------------------------------
 		//	These methods are used to replace calls to the Java String.getBytes methods.
 		//--------------------------------------------------------------------------------
-		internal static sbyte[] GetBytes(this string self)
+		internal static byte[] GetBytes(this string self)
 		{
 			return GetSBytesForEncoding(System.Text.Encoding.UTF8, self);
 		}
-		internal static sbyte[] GetBytes(this string self, string encoding)
+		internal static byte[] GetBytes(this string self, string encoding)
 		{
 			return GetSBytesForEncoding(System.Text.Encoding.GetEncoding(encoding), self);
 		}
-		private static sbyte[] GetSBytesForEncoding(System.Text.Encoding encoding, string s)
+		private static byte[] GetSBytesForEncoding(System.Text.Encoding encoding, string s)
 		{
-			sbyte[] sbytes = new sbyte[encoding.GetByteCount(s)];
+			byte[] sbytes = new byte[encoding.GetByteCount(s)];
 			encoding.GetBytes(s, 0, s.Length, (byte[])(object)sbytes, 0);
 			return sbytes;
 		}
