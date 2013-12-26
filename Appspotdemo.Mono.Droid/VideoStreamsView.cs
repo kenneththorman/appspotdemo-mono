@@ -104,7 +104,7 @@ namespace Appspotdemo.Mono.Droid
 		}
 		if (needToScheduleRender)
 		{
-		  queueEvent(new RunnableAnonymousInnerClassHelper(this));
+		  QueueEvent(new RunnableAnonymousInnerClassHelper(this));
 		}
 	  }
 
@@ -144,7 +144,7 @@ namespace Appspotdemo.Mono.Droid
 		  framePool.returnFrame(remoteFrame);
 		}
 		abortUnless(localFrame != null || remoteFrame != null, "Nothing to render!");
-		requestRender();
+		RequestRender();
 	  }
 
 	  /// <summary>

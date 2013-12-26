@@ -32,6 +32,7 @@ using Android.Graphics;
 using Android.Media;
 using Android.OS;
 using Android.Util;
+using Android.Views;
 using Android.Widget;
 using Java.Lang;
 using Java.Util.Regex;
@@ -73,7 +74,7 @@ namespace Appspotdemo.Mono.Droid
 
 	  private const string TAG = "AppRTCDemoActivity";
 	  private PeerConnectionFactory factory;
-	  private VideoSource videoSource;
+	  private Org.Webrtc.VideoSource videoSource;
 	  private PeerConnection pc;
 	  private PCObserver pcObserver;
 	  private SDPObserver sdpObserver;
@@ -83,40 +84,36 @@ namespace Appspotdemo.Mono.Droid
 	  private Toast logToast;
 	  private LinkedList<IceCandidate> queuedRemoteCandidates = new LinkedList<IceCandidate>();
 	  // Synchronize on quit[0] to avoid teardown-related crashes.
-	  private readonly bool?[] quit = new bool?[] {false};
+	  private readonly Boolean[] quit = new Boolean[] { Boolean.False };
 	  private MediaConstraints sdpMediaConstraints;
 
-	  public override void onCreate(Bundle savedInstanceState)
+	  protected override void OnCreate(Bundle savedInstanceState)
 	  {
-		base.onCreate(savedInstanceState);
+		base.OnCreate(savedInstanceState);
 
-		Thread.DefaultUncaughtExceptionHandler = new UnhandledExceptionHandler(this);
+		Java.Lang.Thread.DefaultUncaughtExceptionHandler = new UnhandledExceptionHandler(this);
 
-		Window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		Window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		Window.AddFlags(WindowManagerFlags.Fullscreen);
+		Window.AddFlags(WindowManagerFlags.KeepScreenOn);
 
 		Point displaySize = new Point();
-		WindowManager.DefaultDisplay.getSize(displaySize);
+		WindowManager.DefaultDisplay.GetSize(displaySize);
 		vsv = new VideoStreamsView(this, displaySize);
-		ContentView = vsv;
+		SetContentView(vsv);
 
-		abortUnless(PeerConnectionFactory.initializeAndroidGlobals(this), "Failed to initializeAndroidGlobals");
+		abortUnless(PeerConnectionFactory.InitializeAndroidGlobals(this), "Failed to initializeAndroidGlobals");
 
-		AudioManager audioManager = ((AudioManager) getSystemService(AUDIO_SERVICE));
+		AudioManager audioManager = ((AudioManager) GetSystemService(AudioService));
 		// TODO(fischman): figure out how to do this Right(tm) and remove the
 		// suppression.
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("deprecation") boolean isWiredHeadsetOn = audioManager.isWiredHeadsetOn();
 		bool isWiredHeadsetOn = audioManager.WiredHeadsetOn;
-		audioManager.Mode = isWiredHeadsetOn ? AudioManager.MODE_IN_CALL : AudioManager.MODE_IN_COMMUNICATION;
+		audioManager.Mode = isWiredHeadsetOn ? Mode.InCall: Mode.InCommunication;
 		audioManager.SpeakerphoneOn = !isWiredHeadsetOn;
 
 		sdpMediaConstraints = new MediaConstraints();
-		sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
-		sdpMediaConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
+		sdpMediaConstraints.Mandatory.Add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
+		sdpMediaConstraints.Mandatory.Add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
 
-//JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
-//ORIGINAL LINE: final Android.content.Intent intent = getIntent();
 		Intent intent = Intent;
 		if ("Android.intent.action.VIEW".Equals(intent.Action))
 		{
@@ -128,11 +125,9 @@ namespace Appspotdemo.Mono.Droid
 
 	  private void showGetRoomUI()
 	  {
-//JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
-//ORIGINAL LINE: final Android.widget.EditText roomInput = new Android.widget.EditText(this);
 		EditText roomInput = new EditText(this);
 		roomInput.Text = "https://apprtc.appspot.com/?r=";
-		roomInput.Selection = roomInput.Text.length();
+		roomInput.SetSelection(roomInput.Text.Length);
 		IDialogInterfaceOnClickListener listener = new OnClickListenerAnonymousInnerClassHelper(this, roomInput);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.SetMessage("Enter room URL").SetView(roomInput).SetPositiveButton("Go!", listener).Show();
@@ -164,7 +159,7 @@ namespace Appspotdemo.Mono.Droid
 		appRtcClient.connectToRoom(roomUrl);
 	  }
 
-	  public override void onPause()
+	  protected override void OnPause()
 	  {
 		base.OnPause();
 		vsv.OnPause();
@@ -174,7 +169,7 @@ namespace Appspotdemo.Mono.Droid
 		}
 	  }
 
-	  public override void onResume()
+	  protected override void OnResume()
 	  {
 		base.OnResume();
 		vsv.OnResume();
@@ -184,7 +179,7 @@ namespace Appspotdemo.Mono.Droid
 		}
 	  }
 
-	  public void OnIceServers(IList<PeerConnection.IceServer> iceServers)
+	  public void onIceServers(IList<PeerConnection.IceServer> iceServers)
 	  {
 		factory = new PeerConnectionFactory();
 		pc = factory.CreatePeerConnection(iceServers, appRtcClient.pcConstraints(), pcObserver);
@@ -197,12 +192,10 @@ namespace Appspotdemo.Mono.Droid
 		//     Logging.Severity.LS_SENSITIVE);
 
 		{
-//JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
-//ORIGINAL LINE: final org.webrtc.PeerConnection finalPC = pc;
 		  PeerConnection finalPC = pc;
 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
 //ORIGINAL LINE: final Runnable repeatedStatsLogger = new Runnable()
-		  Runnable repeatedStatsLogger = new RunnableAnonymousInnerClassHelper(this, finalPC);
+		  IRunnable repeatedStatsLogger = new RunnableAnonymousInnerClassHelper(this, finalPC);
 		  vsv.PostDelayed(repeatedStatsLogger, 10000);
 		}
 
@@ -239,12 +232,10 @@ namespace Appspotdemo.Mono.Droid
 		  {
 			lock (outerInstance.quit[0])
 			{
-			  if (outerInstance.quit[0])
+			  if (outerInstance.quit[0]==Boolean.True)
 			  {
 				return;
 			  }
-//JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
-//ORIGINAL LINE: final Runnable runnableThis = this;
 			  IRunnable runnableThis = this;
 			  bool success = finalPC.GetStats(new StatsObserverAnonymousInnerClassHelper(this, runnableThis), null);
 			  if (!success)
@@ -258,9 +249,9 @@ namespace Appspotdemo.Mono.Droid
 		  {
 			  private readonly RunnableAnonymousInnerClassHelper outerInstance;
 
-			  private Runnable runnableThis;
+			  private IRunnable runnableThis;
 
-			  public StatsObserverAnonymousInnerClassHelper(RunnableAnonymousInnerClassHelper outerInstance, Runnable runnableThis)
+			  public StatsObserverAnonymousInnerClassHelper(RunnableAnonymousInnerClassHelper outerInstance, IRunnable runnableThis)
 			  {
 				  this.outerInstance = outerInstance;
 				  this.runnableThis = runnableThis;
@@ -340,7 +331,7 @@ namespace Appspotdemo.Mono.Droid
 	  }
 
 	  // Put a |key|->|value| mapping in |json|.
-	  private static void jsonPut(JSONObject json, string key, object value)
+	  private static void jsonPut(JSONObject json, string key, Java.Lang.Object value)
 	  {
 		try
 		{
@@ -358,7 +349,7 @@ namespace Appspotdemo.Mono.Droid
 		string[] lines = sdpDescription.Split("\n", true);
 		int mLineIndex = -1;
 		string isac16kRtpMap = null;
-		Pattern isac16kPattern = Pattern.compile("^a=rtpmap:(\\d+) ISAC/16000[\r]?$");
+		Java.Util.Regex.Pattern isac16kPattern = Java.Util.Regex.Pattern.Compile("^a=rtpmap:(\\d+) ISAC/16000[\r]?$");
 		for (int i = 0; (i < lines.Length) && (mLineIndex == -1 || isac16kRtpMap == null); ++i)
 		{
 		  if (lines[i].StartsWith("m=audio "))
@@ -366,7 +357,7 @@ namespace Appspotdemo.Mono.Droid
 			mLineIndex = i;
 			continue;
 		  }
-		  Matcher isac16kMatcher = isac16kPattern.matcher(lines[i]);
+		  Matcher isac16kMatcher = isac16kPattern.Matcher(lines[i]);
 		  if (isac16kMatcher.Matches())
 		  {
 			isac16kRtpMap = isac16kMatcher.Group(1);
@@ -499,7 +490,7 @@ namespace Appspotdemo.Mono.Droid
 			  abortUnless(stream.AudioTracks.Size() <= 1 && stream.VideoTracks.Size() <= 1, "Weird-looking stream: " + stream);
 			  if (stream.VideoTracks.Size() == 1)
 			  {
-				stream.VideoTracks.Get(0).AddRenderer(new VideoRenderer(new VideoCallbacks(outerInstance.outerInstance, outerInstance.outerInstance.vsv, VideoStreamsView.Endpoint.REMOTE)));
+				((Org.Webrtc.VideoTrack)stream.VideoTracks.Get(0)).AddRenderer(new VideoRenderer(new VideoCallbacks(outerInstance.outerInstance, outerInstance.outerInstance.vsv, VideoStreamsView.Endpoint.REMOTE)));
 			  }
 			}
 		}
@@ -579,10 +570,10 @@ namespace Appspotdemo.Mono.Droid
 
 			public virtual void Run()
 			{
-			  outerInstance.outerInstance.logAndToast("Sending " + origSdp.type);
-			  SessionDescription sdp = new SessionDescription(origSdp.type, outerInstance.outerInstance.preferISAC(origSdp.Description));
+			  outerInstance.outerInstance.logAndToast("Sending " + origSdp.Type);
+			  SessionDescription sdp = new SessionDescription(origSdp.Type, outerInstance.outerInstance.preferISAC(origSdp.Description));
 			  JSONObject json = new JSONObject();
-			  jsonPut(json, "type", sdp.type.canonicalForm());
+			  jsonPut(json, "type", sdp.Type.CanonicalForm());
 			  jsonPut(json, "sdp", sdp.Description);
 			  outerInstance.outerInstance.sendMessage(json);
 			  outerInstance.outerInstance.pc.SetLocalDescription(outerInstance.outerInstance.sdpObserver, sdp);
@@ -733,7 +724,7 @@ namespace Appspotdemo.Mono.Droid
 			}
 			else if (type.Equals("answer") || type.Equals("offer"))
 			{
-			  SessionDescription sdp = new SessionDescription(SessionDescription.Type.FromCanonicalForm(type), outerInstance.preferISAC((string) json.Get("sdp")));
+			  SessionDescription sdp = new SessionDescription(SessionDescription.SessionDescriptionType.FromCanonicalForm(type), outerInstance.preferISAC((string) json.Get("sdp")));
 			  outerInstance.pc.SetRemoteDescription(outerInstance.sdpObserver, sdp);
 			}
 			else if (type.Equals("bye"))
@@ -772,11 +763,11 @@ namespace Appspotdemo.Mono.Droid
 	  {
 		lock (quit[0])
 		{
-		  if (quit[0])
+		  if (quit[0]==Boolean.True)
 		  {
 			return;
 		  }
-		  quit[0] = true;
+		  quit[0] = Boolean.True;
 		  if (pc != null)
 		  {
 			pc.Dispose();

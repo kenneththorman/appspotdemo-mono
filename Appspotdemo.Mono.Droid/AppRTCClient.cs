@@ -245,7 +245,7 @@ namespace Appspotdemo.Mono.Droid
 		  }
 		  catch (IOException e)
 		  {
-			throw new Exception(e);
+			throw new Exception("Error", e);
 		  }
 		}
 
@@ -272,11 +272,11 @@ namespace Appspotdemo.Mono.Droid
 		{
 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
 //ORIGINAL LINE: final java.util.regex.Pattern fullRoomPattern = java.util.regex.Pattern.compile(".*\n *Sorry, this room is full\\..*");
-		  Pattern fullRoomPattern = Pattern.compile(".*\n *Sorry, this room is full\\..*");
+			Java.Util.Regex.Pattern fullRoomPattern = Java.Util.Regex.Pattern.Compile(".*\n *Sorry, this room is full\\..*");
 
-		  string roomHtml = drainStream((new URL(url)).openConnection().InputStream);
+		  string roomHtml = drainStream((new URL(url)).OpenConnection().InputStream);
 
-		  Matcher fullRoomMatcher = fullRoomPattern.matcher(roomHtml);
+		  Matcher fullRoomMatcher = fullRoomPattern.Matcher(roomHtml);
 		  if (fullRoomMatcher.Find())
 		  {
 			throw new IOException("Room is full!");
@@ -286,7 +286,7 @@ namespace Appspotdemo.Mono.Droid
 		  string token = getVarValue(roomHtml, "channelToken", true);
 		  string postMessageUrl = "/message?r=" + getVarValue(roomHtml, "roomKey", true) + "&u=" + getVarValue(roomHtml, "me", true);
 		  bool initiator = getVarValue(roomHtml, "initiator", false).Equals("1");
-		  LinkedList<PeerConnection.IceServer> iceServers = outerInstance.iceServersFromPCConfigJSON(getVarValue(roomHtml, "pcConfig", false));
+		  List<PeerConnection.IceServer> iceServers = outerInstance.iceServersFromPCConfigJSON(getVarValue(roomHtml, "pcConfig", false));
 
 		  bool isTurnPresent = false;
 		  foreach (PeerConnection.IceServer server in iceServers)
@@ -299,7 +299,7 @@ namespace Appspotdemo.Mono.Droid
 		  }
 		  if (!isTurnPresent)
 		  {
-			iceServers.AddLast(requestTurnServer(getVarValue(roomHtml, "turnUrl", true)));
+			iceServers.Add(requestTurnServer(getVarValue(roomHtml, "turnUrl", true)));
 		  }
 
 		  MediaConstraints pcConstraints = constraintsFromJSON(getVarValue(roomHtml, "pcConstraints", false));
@@ -390,8 +390,8 @@ namespace Appspotdemo.Mono.Droid
 		{
 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
 //ORIGINAL LINE: final java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(".*\n *var " + varName + " = ([^\n]*);\n.*");
-		  Pattern pattern = Pattern.compile(".*\n *var " + varName + " = ([^\n]*);\n.*");
-		  Matcher matcher = pattern.matcher(roomHtml);
+		  Java.Util.Regex.Pattern pattern = Java.Util.Regex.Pattern.Compile(".*\n *var " + varName + " = ([^\n]*);\n.*");
+		  Matcher matcher = pattern.Matcher(roomHtml);
 		  if (!matcher.Find())
 		  {
 			throw new IOException("Missing " + varName + " in HTML: " + roomHtml);
@@ -437,19 +437,19 @@ namespace Appspotdemo.Mono.Droid
 
 	  // Return the list of ICE servers described by a WebRTCPeerConnection
 	  // configuration string.
-	  private LinkedList<PeerConnection.IceServer> iceServersFromPCConfigJSON(string pcConfig)
+	  private List<PeerConnection.IceServer> iceServersFromPCConfigJSON(string pcConfig)
 	  {
 		try
 		{
 		  JSONObject json = new JSONObject(pcConfig);
 		  JSONArray servers = json.GetJSONArray("iceServers");
-		  LinkedList<PeerConnection.IceServer> ret = new LinkedList<PeerConnection.IceServer>();
+		  List<PeerConnection.IceServer> ret = new List<PeerConnection.IceServer>();
 		  for (int i = 0; i < servers.Length(); ++i)
 		  {
 			JSONObject server = servers.GetJSONObject(i);
 			string url = server.GetString("url");
 			string credential = server.Has("credential") ? server.GetString("credential") : "";
-			ret.AddLast(new PeerConnection.IceServer(url, "", credential));
+			ret.Add(new PeerConnection.IceServer(url, "", credential));
 		  }
 		  return ret;
 		}
@@ -512,9 +512,9 @@ namespace Appspotdemo.Mono.Droid
 	  }
 
 	  // Return the contents of an InputStream as a String.
-	  private static string drainStream(InputStream @in)
+	  private static string drainStream(System.IO.Stream inputStream)
 	  {
-		Scanner s = (new Scanner(@in)).UseDelimiter("\\A");
+		Scanner s = (new Scanner(inputStream)).UseDelimiter("\\A");
 		return s.HasNext ? s.Next() : "";
 	  }
 	}
