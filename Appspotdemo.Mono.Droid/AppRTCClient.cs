@@ -505,7 +505,7 @@ namespace Appspotdemo.Mono.Droid
 		  }
 		  catch (IOException e)
 		  {
-			throw new Exception(e);
+			throw new Exception("Error",e);
 		  }
 		  sendQueue.Clear();
 		}
