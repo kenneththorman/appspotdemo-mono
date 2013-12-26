@@ -96,6 +96,7 @@
     <Compile Include="AppRTCDemoActivity.cs" />
     <Compile Include="FramePool.cs" />
     <Compile Include="GAEChannelClient.cs" />
+    <Content Include="LICENSE.txt" />
     <Content Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
