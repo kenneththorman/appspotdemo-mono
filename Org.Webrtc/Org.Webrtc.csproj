@@ -44,6 +44,7 @@
   <ItemGroup>
     <None Include="Jars\AboutJars.txt" />
     <None Include="Additions\AboutAdditions.txt" />
+    <None Include="java\README" />
   </ItemGroup>
   <ItemGroup>
     <TransformFile Include="Transforms\Metadata.xml" />
@@ -52,6 +53,28 @@
   </ItemGroup>
   <ItemGroup>
     <InputJar Include="Jars\libjingle_peerconnection.jar" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="java\jni\peerconnection_jni.cc" />
+    <None Include="java\src\org\webrtc\AudioSource.java" />
+    <None Include="java\src\org\webrtc\AudioTrack.java" />
+    <None Include="java\src\org\webrtc\DataChannel.java" />
+    <None Include="java\src\org\webrtc\IceCandidate.java" />
+    <None Include="java\src\org\webrtc\Logging.java" />
+    <None Include="java\src\org\webrtc\MediaConstraints.java" />
+    <None Include="java\src\org\webrtc\MediaSource.java" />
+    <None Include="java\src\org\webrtc\MediaStream.java" />
+    <None Include="java\src\org\webrtc\MediaStreamTrack.java" />
+    <None Include="java\src\org\webrtc\PeerConnection.java" />
+    <None Include="java\src\org\webrtc\PeerConnectionFactory.java" />
+    <None Include="java\src\org\webrtc\SdpObserver.java" />
+    <None Include="java\src\org\webrtc\SessionDescription.java" />
+    <None Include="java\src\org\webrtc\StatsObserver.java" />
+    <None Include="java\src\org\webrtc\StatsReport.java" />
+    <None Include="java\src\org\webrtc\VideoCapturer.java" />
+    <None Include="java\src\org\webrtc\VideoRenderer.java" />
+    <None Include="java\src\org\webrtc\VideoSource.java" />
+    <None Include="java\src\org\webrtc\VideoTrack.java" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.Bindings.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
