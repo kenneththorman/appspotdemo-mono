@@ -25,6 +25,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+using System.Linq;
 using Org.Webrtc;
 
 namespace Appspotdemo.Mono.Droid
@@ -66,7 +67,7 @@ namespace Appspotdemo.Mono.Droid
 		  }
 		  else
 		  {
-			dst = new VideoRenderer.I420Frame(source.Width, source.Height, source.YuvStrides, null);
+			dst = new VideoRenderer.I420Frame(source.Width, source.Height, source.YuvStrides.ToArray(), null);
 		  }
 		}
 		return dst;
