@@ -25,6 +25,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System.Collections.Generic;
 using Android.Content;
 using Android.Graphics;
 using Android.Opengl;
@@ -58,7 +59,7 @@ namespace Appspotdemo.Mono.Droid
 	  }
 
 	  private const string TAG = "VideoStreamsView";
-	  private EnumMap<Endpoint, Rect> rects = new EnumMap<Endpoint, Rect>(typeof(Endpoint));
+	  private Dictionary<Endpoint, Rect> rects = new Dictionary<Endpoint, Rect>();
 	  private Point screenDimensions;
 	  // [0] are local Y,U,V, [1] are remote Y,U,V.
 	  private int[][] yuvTextures = new int[][] {new int[] {-1, -1, -1}, new int[] {-1, -1, -1}};
@@ -67,7 +68,7 @@ namespace Appspotdemo.Mono.Droid
 	  private long numFramesSinceLastLog = 0;
 	  private FramePool framePool = new FramePool();
 	  // Accessed on multiple threads!  Must be synchronized.
-	  private EnumMap<Endpoint, VideoRenderer.I420Frame> framesToRender = new EnumMap<Endpoint, VideoRenderer.I420Frame>(typeof(Endpoint));
+	  private Dictionary<Endpoint, Org.Webrtc.VideoRenderer.I420Frame> framesToRender = new Dictionary<Endpoint, Org.Webrtc.VideoRenderer.I420Frame>();
 
 	  public VideoStreamsView(Context c, Point screenDimensions) : base(c)
 	  {
@@ -82,11 +83,11 @@ namespace Appspotdemo.Mono.Droid
 	  /// Queue |frame| to be uploaded. </summary>
 //JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
 //ORIGINAL LINE: public void queueFrame(final Endpoint stream, org.webrtc.VideoRenderer.I420Frame frame)
-	  public virtual void queueFrame(Endpoint stream, VideoRenderer.I420Frame frame)
+	  public virtual void queueFrame(Endpoint stream, Org.Webrtc.VideoRenderer.I420Frame frame)
 	  {
 		// Paying for the copy of the YUV data here allows CSC and painting time
 		// to get spent on the render thread instead of the UI thread.
-		abortUnless(framePool.validateDimensions(frame), "Frame too large!");
+		abortUnless(FramePool.validateDimensions(frame), "Frame too large!");
 //JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
 //ORIGINAL LINE: final org.webrtc.VideoRenderer.I420Frame frameCopy = framePool.takeFrame(frame).copyFrom(frame);
 		VideoRenderer.I420Frame frameCopy = framePool.takeFrame(frame).CopyFrom(frame);
@@ -95,11 +96,11 @@ namespace Appspotdemo.Mono.Droid
 		{
 		  // A new render needs to be scheduled (via updateFrames()) iff there isn't
 		  // already a render scheduled, which is true iff framesToRender is empty.
-		  needToScheduleRender = framesToRender.Empty;
-		  VideoRenderer.I420Frame frameToDrop = framesToRender.Put(stream, frameCopy);
-		  if (frameToDrop != null)
+		  needToScheduleRender = framesToRender.Count == 0;
+		  framesToRender.Add(stream, frameCopy);
+		  if (frameCopy != null)
 		  {
-			framePool.returnFrame(frameToDrop);
+			  framePool.returnFrame(frameCopy);
 		  }
 		}
 		if (needToScheduleRender)
@@ -130,8 +131,10 @@ namespace Appspotdemo.Mono.Droid
 		VideoRenderer.I420Frame remoteFrame = null;
 		lock (framesToRender)
 		{
-		  localFrame = framesToRender.remove(Endpoint.LOCAL);
-		  remoteFrame = framesToRender.remove(Endpoint.REMOTE);
+			framesToRender.TryGetValue(Endpoint.LOCAL, out localFrame);
+			framesToRender.Remove(Endpoint.LOCAL);
+			framesToRender.TryGetValue(Endpoint.REMOTE, out remoteFrame);
+			framesToRender.Remove(Endpoint.REMOTE);
 		}
 		if (localFrame != null)
 		{
