@@ -44,7 +44,7 @@ namespace Appspotdemo.Mono.Droid
 	{
 	  // Maps each summary code (see summarizeFrameDimensions()) to a list of frames
 	  // of that description.
-	  private readonly Dictionary<long, Stack<VideoRenderer.I420Frame>> availableFrames = new Dictionary<long, Stack<VideoRenderer.I420Frame>>();
+		private readonly Dictionary<long, LinkedList<VideoRenderer.I420Frame>> availableFrames = new Dictionary<long, LinkedList<VideoRenderer.I420Frame>>();
 	  // Every dimension (e.g. width, height, stride) of a frame must be less than
 	  // this value.
 	  private const long MAX_DIMENSION = 4096;
@@ -55,15 +55,17 @@ namespace Appspotdemo.Mono.Droid
 		VideoRenderer.I420Frame dst = null;
 		lock (availableFrames)
 		{
-		  Stack<VideoRenderer.I420Frame> frames = availableFrames[desc];
+			LinkedList<VideoRenderer.I420Frame> frames;
+			availableFrames.TryGetValue(desc, out frames);
 		  if (frames == null)
 		  {
-			frames = new Stack<VideoRenderer.I420Frame>();
-			availableFrames[desc] = frames;
+			  frames = new LinkedList<VideoRenderer.I420Frame>();
+				availableFrames[desc] = frames;
 		  }
 		  if (frames.Count > 0)
 		  {
-			dst = frames.Pop();
+			  dst = frames.First.Value;
+			  frames.RemoveFirst();
 		  }
 		  else
 		  {
@@ -78,12 +80,12 @@ namespace Appspotdemo.Mono.Droid
 		long desc = summarizeFrameDimensions(frame);
 		lock (availableFrames)
 		{
-		  Stack<VideoRenderer.I420Frame> frames = availableFrames[desc];
+			LinkedList<VideoRenderer.I420Frame> frames = availableFrames[desc];
 		  if (frames == null)
 		  {
 			throw new System.ArgumentException("Unexpected frame dimensions");
 		  }
-		  frames.Push(frame);
+		  frames.AddFirst(frame);
 		}
 	  }
 
