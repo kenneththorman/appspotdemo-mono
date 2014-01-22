@@ -146,18 +146,13 @@ namespace Appspotdemo.Mono.Droid
 		  return disconnected_Renamed[0];
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @JavascriptInterface public String getToken()
-		public virtual string Token
+		[JavascriptInterface]
+		public string getToken()
 		{
-			get
-			{
 			  return token;
-			}
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @JavascriptInterface public void onOpen()
+		[JavascriptInterface]
 		public virtual void onOpen()
 		{
 		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this));
@@ -181,9 +176,7 @@ namespace Appspotdemo.Mono.Droid
 			}
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @JavascriptInterface public void onMessage(final String data)
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
+		[JavascriptInterface]
 		public virtual void onMessage(string data)
 		{
 		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper2(this, data));
@@ -210,8 +203,7 @@ namespace Appspotdemo.Mono.Droid
 			}
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @JavascriptInterface public void onClose()
+		[JavascriptInterface]
 		public virtual void onClose()
 		{
 		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper3(this));
@@ -235,9 +227,7 @@ namespace Appspotdemo.Mono.Droid
 			}
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @JavascriptInterface public void onError(final int code, final String description)
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
+		[JavascriptInterface]
 		public virtual void onError(int code, string description)
 		{
 		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper4(this, code, description));
