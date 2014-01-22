@@ -62,14 +62,12 @@ namespace Appspotdemo.Mono.Droid
 
 		/// <summary>
 		/// Asynchronously open an AppEngine channel. </summary>
-		//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-		//ORIGINAL LINE: @SuppressLint("SetJavaScriptEnabled") public GAEChannelClient(android.app.Activity activity, String token, MessageHandler handler)
 		public GAEChannelClient(Activity activity, string token, MessageHandler handler)
 		{
 			webView = new WebView(activity);
 			webView.Settings.JavaScriptEnabled = true;
-			//webView.WebChromeClient = new WebChromeClientAnonymousInnerClassHelper(this); // Purely for debugging.
-			//webView.WebViewClient = new WebViewClientAnonymousInnerClassHelper(this); // Purely for debugging.
+			//webView.SetWebChromeClient(new WebChromeClientAnonymousInnerClassHelper(this)); // Purely for debugging.
+			//webView.SetWebViewClient(new WebViewClientAnonymousInnerClassHelper(this)); // Purely for debugging.
 			proxyingMessageHandler = new ProxyingMessageHandler(activity, handler, token);
 			webView.AddJavascriptInterface(proxyingMessageHandler, "androidMessageHandler");
 			webView.LoadUrl("file:///android_asset/channel.html");
