@@ -196,8 +196,6 @@ namespace Appspotdemo.Mono.Droid
 		  outerInstance.connectToRoom(url);
 		}
 
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: private String followRedirect(String url) throws java.io.IOException
 		internal virtual string followRedirect(string url)
 		{
 		  HttpURLConnection connection = (HttpURLConnection) (new URL(url)).OpenConnection();
@@ -266,12 +264,8 @@ namespace Appspotdemo.Mono.Droid
 		// TODO(fischman): replace this hackery with a dedicated JSON-serving URL in
 		// apprtc so that this isn't necessary (here and in other future apps that
 		// want to interop with apprtc).
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: private AppRTCSignalingParameters getParametersForRoomUrl(String url) throws java.io.IOException
 		internal virtual AppRTCSignalingParameters getParametersForRoomUrl(string url)
 		{
-//JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
-//ORIGINAL LINE: final java.util.regex.Pattern fullRoomPattern = java.util.regex.Pattern.compile(".*\n *Sorry, this room is full\\..*");
 			Java.Util.Regex.Pattern fullRoomPattern = Java.Util.Regex.Pattern.Compile(".*\n *Sorry, this room is full\\..*");
 
 		  string roomHtml = drainStream((new URL(url)).OpenConnection().InputStream);
@@ -384,12 +378,8 @@ namespace Appspotdemo.Mono.Droid
 
 		// Scan |roomHtml| for declaration & assignment of |varName| and return its
 		// value, optionally stripping outside quotes if |stripQuotes| requests it.
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: private String getVarValue(String roomHtml, String varName, boolean stripQuotes) throws java.io.IOException
 		internal virtual string getVarValue(string roomHtml, string varName, bool stripQuotes)
 		{
-//JAVA TO C# CONVERTER WARNING: The original Java variable was marked 'final':
-//ORIGINAL LINE: final java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(".*\n *var " + varName + " = ([^\n]*);\n.*");
 		  Java.Util.Regex.Pattern pattern = Java.Util.Regex.Pattern.Compile(".*\n *var " + varName + " = ([^\n]*);\n.*");
 		  Matcher matcher = pattern.Matcher(roomHtml);
 		  if (!matcher.Find())
