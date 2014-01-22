@@ -124,10 +124,10 @@ namespace Appspotdemo.Mono.Droid
 	  // (private, background) thread to the Activity's UI thread.
 	  private class ProxyingMessageHandler : Java.Lang.Object
 	  {
-		internal readonly Activity activity;
-		internal readonly MessageHandler handler;
-		internal readonly bool[] disconnected_Renamed = new bool[] {false};
-		internal readonly string token;
+		  private readonly Activity activity;
+		  private readonly MessageHandler handler;
+		  private readonly bool[] disconnected_Renamed = new bool[] {false};
+		  private readonly string token;
 
 		public ProxyingMessageHandler(Activity activity, MessageHandler handler, string token)
 		{
@@ -136,12 +136,12 @@ namespace Appspotdemo.Mono.Droid
 		  this.token = token;
 		}
 
-		public virtual void disconnect()
+		public void disconnect()
 		{
 		  disconnected_Renamed[0] = true;
 		}
 
-		internal virtual bool disconnected()
+		  private bool disconnected()
 		{
 		  return disconnected_Renamed[0];
 		}
@@ -153,7 +153,7 @@ namespace Appspotdemo.Mono.Droid
 		}
 
 		[JavascriptInterface]
-		public virtual void onOpen()
+		public void onOpen()
 		{
 		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this));
 		}
@@ -177,7 +177,7 @@ namespace Appspotdemo.Mono.Droid
 		}
 
 		[JavascriptInterface]
-		public virtual void onMessage(string data)
+		public void onMessage(string data)
 		{
 		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper2(this, data));
 		}
@@ -204,7 +204,7 @@ namespace Appspotdemo.Mono.Droid
 		}
 
 		[JavascriptInterface]
-		public virtual void onClose()
+		public void onClose()
 		{
 		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper3(this));
 		}
@@ -228,7 +228,7 @@ namespace Appspotdemo.Mono.Droid
 		}
 
 		[JavascriptInterface]
-		public virtual void onError(int code, string description)
+		public void onError(int code, string description)
 		{
 		  activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper4(this, code, description));
 		}

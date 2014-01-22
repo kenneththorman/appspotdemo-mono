@@ -33,6 +33,7 @@ using Android.Media;
 using Android.OS;
 using Android.Util;
 using Android.Views;
+using Android.Webkit;
 using Android.Widget;
 using Java.Lang;
 using Java.Util.Regex;
@@ -691,9 +692,8 @@ namespace Appspotdemo.Mono.Droid
 			  this.outerInstance = outerInstance;
 		  }
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @JavascriptInterface public void onOpen()
-		public virtual void onOpen()
+	  [JavascriptInterface]
+		public void onOpen()
 		{
 		  if (!outerInstance.appRtcClient.Initiator)
 		  {
@@ -703,9 +703,8 @@ namespace Appspotdemo.Mono.Droid
 		  outerInstance.pc.CreateOffer(outerInstance.sdpObserver, outerInstance.sdpMediaConstraints);
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @JavascriptInterface public void onMessage(String data)
-		public virtual void onMessage(string data)
+	  [JavascriptInterface]
+	  public void onMessage(string data)
 		{
 		  try
 		  {
@@ -744,16 +743,14 @@ namespace Appspotdemo.Mono.Droid
 		  }
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @JavascriptInterface public void onClose()
-		public virtual void onClose()
+	  [JavascriptInterface]
+	  public void onClose()
 		{
 		  outerInstance.disconnectAndExit();
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @JavascriptInterface public void onError(int code, String description)
-		public virtual void onError(int code, string description)
+	  [JavascriptInterface]
+	  public void onError(int code, string description)
 		{
 		  outerInstance.disconnectAndExit();
 		}
