@@ -80,7 +80,7 @@ namespace Appspotdemo.Mono.Droid
 		/// https://apprtc.appspot.com/?r=NNN and register message-handling callbacks
 		/// on its GAE Channel.
 		/// </summary>
-		public virtual void connectToRoom(string url)
+		public void connectToRoom(string url)
 		{
 			while (url.IndexOf('?') < 0)
 			{
@@ -94,7 +94,7 @@ namespace Appspotdemo.Mono.Droid
 		/// <summary>
 		/// Disconnect from the GAE Channel.
 		/// </summary>
-		public virtual void disconnect()
+		public void disconnect()
 		{
 			if (channelClient != null)
 			{
@@ -108,7 +108,7 @@ namespace Appspotdemo.Mono.Droid
 		/// connected (other wise queued messages are drained when the channel is
 		///   eventually established).
 		/// </summary>
-		public virtual void sendMessage(string msg)
+		public void sendMessage(string msg)
 		{
 			lock (this)
 			{
@@ -120,7 +120,7 @@ namespace Appspotdemo.Mono.Droid
 			}
 		}
 
-		public virtual bool Initiator
+		public bool Initiator
 		{
 			get
 			{
@@ -128,12 +128,12 @@ namespace Appspotdemo.Mono.Droid
 			}
 		}
 
-		public virtual MediaConstraints pcConstraints()
+		public MediaConstraints pcConstraints()
 		{
 			return appRTCSignalingParameters.pcConstraints;
 		}
 
-		public virtual MediaConstraints videoConstraints()
+		public MediaConstraints videoConstraints()
 		{
 			return appRTCSignalingParameters.videoConstraints;
 		}
@@ -196,7 +196,7 @@ namespace Appspotdemo.Mono.Droid
 				outerInstance.connectToRoom(url);
 			}
 
-			internal virtual string followRedirect(string url)
+			private string followRedirect(string url)
 			{
 				HttpURLConnection connection = (HttpURLConnection)(new URL(url)).OpenConnection();
 				connection.InstanceFollowRedirects = false;
@@ -264,7 +264,7 @@ namespace Appspotdemo.Mono.Droid
 			// TODO(fischman): replace this hackery with a dedicated JSON-serving URL in
 			// apprtc so that this isn't necessary (here and in other future apps that
 			// want to interop with apprtc).
-			internal virtual AppRTCSignalingParameters getParametersForRoomUrl(string url)
+			private AppRTCSignalingParameters getParametersForRoomUrl(string url)
 			{
 				Java.Util.Regex.Pattern fullRoomPattern = Java.Util.Regex.Pattern.Compile(".*\n *Sorry, this room is full\\..*");
 
@@ -306,7 +306,7 @@ namespace Appspotdemo.Mono.Droid
 				return new AppRTCSignalingParameters(outerInstance, iceServers, gaeBaseHref, token, postMessageUrl, initiator, pcConstraints, videoConstraints);
 			}
 
-			internal virtual string getVideoConstraints(string mediaConstraintsString)
+			private string getVideoConstraints(string mediaConstraintsString)
 			{
 				try
 				{
@@ -333,7 +333,7 @@ namespace Appspotdemo.Mono.Droid
 				}
 			}
 
-			internal virtual MediaConstraints constraintsFromJSON(string jsonString)
+			private MediaConstraints constraintsFromJSON(string jsonString)
 			{
 				if (jsonString == null)
 				{
@@ -378,7 +378,7 @@ namespace Appspotdemo.Mono.Droid
 
 			// Scan |roomHtml| for declaration & assignment of |varName| and return its
 			// value, optionally stripping outside quotes if |stripQuotes| requests it.
-			internal virtual string getVarValue(string roomHtml, string varName, bool stripQuotes)
+			private string getVarValue(string roomHtml, string varName, bool stripQuotes)
 			{
 				Java.Util.Regex.Pattern pattern = Java.Util.Regex.Pattern.Compile(".*\n *var " + varName + " = ([^\n]*);\n.*");
 				Matcher matcher = pattern.Matcher(roomHtml);
@@ -400,7 +400,7 @@ namespace Appspotdemo.Mono.Droid
 
 			// Requests & returns a TURN ICE Server based on a request URL.  Must be run
 			// off the main thread!
-			internal virtual PeerConnection.IceServer requestTurnServer(string url)
+			private PeerConnection.IceServer requestTurnServer(string url)
 			{
 				try
 				{
