@@ -42,73 +42,73 @@ namespace Appspotdemo.Mono.Droid
 	/// </summary>
 	internal class FramePool
 	{
-	  // Maps each summary code (see summarizeFrameDimensions()) to a list of frames
-	  // of that description.
+		// Maps each summary code (see summarizeFrameDimensions()) to a list of frames
+		// of that description.
 		private readonly Dictionary<long, LinkedList<VideoRenderer.I420Frame>> availableFrames = new Dictionary<long, LinkedList<VideoRenderer.I420Frame>>();
-	  // Every dimension (e.g. width, height, stride) of a frame must be less than
-	  // this value.
-	  private const long MAX_DIMENSION = 4096;
+		// Every dimension (e.g. width, height, stride) of a frame must be less than
+		// this value.
+		private const long MAX_DIMENSION = 4096;
 
-	  public virtual VideoRenderer.I420Frame takeFrame(VideoRenderer.I420Frame source)
-	  {
-		long desc = summarizeFrameDimensions(source);
-		VideoRenderer.I420Frame dst = null;
-		lock (availableFrames)
+		public virtual VideoRenderer.I420Frame takeFrame(VideoRenderer.I420Frame source)
 		{
-			LinkedList<VideoRenderer.I420Frame> frames;
-			availableFrames.TryGetValue(desc, out frames);
-		  if (frames == null)
-		  {
-			  frames = new LinkedList<VideoRenderer.I420Frame>();
-				availableFrames[desc] = frames;
-		  }
-		  if (frames.Count > 0)
-		  {
-			  dst = frames.First.Value;
-			  frames.RemoveFirst();
-		  }
-		  else
-		  {
-			dst = new VideoRenderer.I420Frame(source.Width, source.Height, source.YuvStrides.ToArray(), null);
-		  }
+			long desc = summarizeFrameDimensions(source);
+			VideoRenderer.I420Frame dst = null;
+			lock (availableFrames)
+			{
+				LinkedList<VideoRenderer.I420Frame> frames;
+				availableFrames.TryGetValue(desc, out frames);
+				if (frames == null)
+				{
+					frames = new LinkedList<VideoRenderer.I420Frame>();
+					availableFrames[desc] = frames;
+				}
+				if (frames.Count > 0)
+				{
+					dst = frames.First.Value;
+					frames.RemoveFirst();
+				}
+				else
+				{
+					dst = new VideoRenderer.I420Frame(source.Width, source.Height, source.YuvStrides.ToArray(), null);
+				}
+			}
+			return dst;
 		}
-		return dst;
-	  }
 
-	  public virtual void returnFrame(VideoRenderer.I420Frame frame)
-	  {
-		long desc = summarizeFrameDimensions(frame);
-		lock (availableFrames)
+		public virtual void returnFrame(VideoRenderer.I420Frame frame)
 		{
-			LinkedList<VideoRenderer.I420Frame> frames = availableFrames[desc];
-		  if (frames == null)
-		  {
-			throw new System.ArgumentException("Unexpected frame dimensions");
-		  }
-		  frames.AddFirst(frame);
+			long desc = summarizeFrameDimensions(frame);
+			lock (availableFrames)
+			{
+				LinkedList<VideoRenderer.I420Frame> frames = availableFrames[desc];
+				if (frames == null)
+				{
+					throw new System.ArgumentException("Unexpected frame dimensions");
+				}
+				frames.AddFirst(frame);
+			}
 		}
-	  }
 
-	  /// <summary>
-	  /// Validate that |frame| can be managed by the pool. </summary>
-	  public static bool validateDimensions(VideoRenderer.I420Frame frame)
-	  {
-		return frame.Width < MAX_DIMENSION && frame.Height < MAX_DIMENSION && frame.YuvStrides[0] < MAX_DIMENSION && frame.YuvStrides[1] < MAX_DIMENSION && frame.YuvStrides[2] < MAX_DIMENSION;
-	  }
+		/// <summary>
+		/// Validate that |frame| can be managed by the pool. </summary>
+		public static bool validateDimensions(VideoRenderer.I420Frame frame)
+		{
+			return frame.Width < MAX_DIMENSION && frame.Height < MAX_DIMENSION && frame.YuvStrides[0] < MAX_DIMENSION && frame.YuvStrides[1] < MAX_DIMENSION && frame.YuvStrides[2] < MAX_DIMENSION;
+		}
 
-	  // Return a code summarizing the dimensions of |frame|.  Two frames that
-	  // return the same summary are guaranteed to be able to store each others'
-	  // contents.  Used like Object.hashCode(), but we need all the bits of a long
-	  // to do a good job, and hashCode() returns int, so we do this.
-	  private static long summarizeFrameDimensions(VideoRenderer.I420Frame frame)
-	  {
-		long ret = frame.Width;
-		ret = ret * MAX_DIMENSION + frame.Height;
-		ret = ret * MAX_DIMENSION + frame.YuvStrides[0];
-		ret = ret * MAX_DIMENSION + frame.YuvStrides[1];
-		ret = ret * MAX_DIMENSION + frame.YuvStrides[2];
-		return ret;
-	  }
+		// Return a code summarizing the dimensions of |frame|.  Two frames that
+		// return the same summary are guaranteed to be able to store each others'
+		// contents.  Used like Object.hashCode(), but we need all the bits of a long
+		// to do a good job, and hashCode() returns int, so we do this.
+		private static long summarizeFrameDimensions(VideoRenderer.I420Frame frame)
+		{
+			long ret = frame.Width;
+			ret = ret * MAX_DIMENSION + frame.Height;
+			ret = ret * MAX_DIMENSION + frame.YuvStrides[0];
+			ret = ret * MAX_DIMENSION + frame.YuvStrides[1];
+			ret = ret * MAX_DIMENSION + frame.YuvStrides[2];
+			return ret;
+		}
 	}
 
 }

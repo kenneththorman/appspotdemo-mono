@@ -46,84 +46,84 @@ namespace Appspotdemo.Mono.Droid
 	/// </summary>
 	public class UnhandledExceptionHandler : Java.Lang.Object, Java.Lang.Thread.IUncaughtExceptionHandler
 	{
-	  private const string TAG = "AppRTCDemoActivity";
-	  private readonly Activity activity;
+		private const string TAG = "AppRTCDemoActivity";
+		private readonly Activity activity;
 
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-//ORIGINAL LINE: public UnhandledExceptionHandler(final Android.App.Activity activity)
-	  public UnhandledExceptionHandler(Activity activity)
-	  {
-		this.activity = activity;
-	  }
-
-//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-//ORIGINAL LINE: public void uncaughtException(Thread unusedThread, final Throwable e)
-	  public void UncaughtException(Java.Lang.Thread unusedThread, Java.Lang.Throwable e)
-	  {
-		activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this, e));
-	  }
-
-	  private class RunnableAnonymousInnerClassHelper : Java.Lang.Object, IRunnable
-	  {
-		  private readonly UnhandledExceptionHandler outerInstance;
-
-		  private Exception e;
-
-		  public RunnableAnonymousInnerClassHelper(UnhandledExceptionHandler outerInstance, Exception e)
-		  {
-			  this.outerInstance = outerInstance;
-			  this.e = e;
-		  }
-
-		  public void Run()
-		  {
-			string title = "Fatal error: " + getTopLevelCauseMessage(e);
-			string msg = getRecursiveStackTrace(e);
-			TextView errorView = new TextView(outerInstance.activity);
-			errorView.Text = msg;
-			errorView.SetTextSize(ComplexUnitType.Sp, 8);
-			ScrollView scrollingContainer = new ScrollView(outerInstance.activity);
-			scrollingContainer.AddView(errorView);
-			Log.Error(TAG, title + "\n\n" + msg);
-			IDialogInterfaceOnClickListener listener = new OnClickListenerAnonymousInnerClassHelper(this);
-			AlertDialog.Builder builder = new AlertDialog.Builder(outerInstance.activity);
-			builder.SetTitle(title).SetView(scrollingContainer).SetPositiveButton("Exit", listener).Show();
-		  }
-
-		  private class OnClickListenerAnonymousInnerClassHelper : Java.Lang.Object, IDialogInterfaceOnClickListener
-		  {
-			  private readonly RunnableAnonymousInnerClassHelper outerInstance;
-
-			  public OnClickListenerAnonymousInnerClassHelper(RunnableAnonymousInnerClassHelper outerInstance)
-			  {
-				  this.outerInstance = outerInstance;
-			  }
-
-			  public void OnClick(IDialogInterface dialog, int which)
-			  {
-				dialog.Dismiss();
-				Environment.Exit(1);
-			  }
-		  }
-	  }
-
-	  // Returns the Message attached to the original Cause of |t|.
-	  private static string getTopLevelCauseMessage(Exception t)
-	  {
-		Exception topLevelCause = t;
-		while (topLevelCause.InnerException != null)
+		//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
+		//ORIGINAL LINE: public UnhandledExceptionHandler(final Android.App.Activity activity)
+		public UnhandledExceptionHandler(Activity activity)
 		{
-		  topLevelCause = topLevelCause.InnerException;
+			this.activity = activity;
 		}
-		return topLevelCause.Message;
-	  }
 
-	  // Returns a human-readable String of the stacktrace in |t|, recursively
-	  // through all Causes that led to |t|.
-	  private static string getRecursiveStackTrace(Exception t)
-	  {
-		  return t.StackTrace;
-	  }
+		//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
+		//ORIGINAL LINE: public void uncaughtException(Thread unusedThread, final Throwable e)
+		public void UncaughtException(Java.Lang.Thread unusedThread, Java.Lang.Throwable e)
+		{
+			activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this, e));
+		}
+
+		private class RunnableAnonymousInnerClassHelper : Java.Lang.Object, IRunnable
+		{
+			private readonly UnhandledExceptionHandler outerInstance;
+
+			private Exception e;
+
+			public RunnableAnonymousInnerClassHelper(UnhandledExceptionHandler outerInstance, Exception e)
+			{
+				this.outerInstance = outerInstance;
+				this.e = e;
+			}
+
+			public void Run()
+			{
+				string title = "Fatal error: " + getTopLevelCauseMessage(e);
+				string msg = getRecursiveStackTrace(e);
+				TextView errorView = new TextView(outerInstance.activity);
+				errorView.Text = msg;
+				errorView.SetTextSize(ComplexUnitType.Sp, 8);
+				ScrollView scrollingContainer = new ScrollView(outerInstance.activity);
+				scrollingContainer.AddView(errorView);
+				Log.Error(TAG, title + "\n\n" + msg);
+				IDialogInterfaceOnClickListener listener = new OnClickListenerAnonymousInnerClassHelper(this);
+				AlertDialog.Builder builder = new AlertDialog.Builder(outerInstance.activity);
+				builder.SetTitle(title).SetView(scrollingContainer).SetPositiveButton("Exit", listener).Show();
+			}
+
+			private class OnClickListenerAnonymousInnerClassHelper : Java.Lang.Object, IDialogInterfaceOnClickListener
+			{
+				private readonly RunnableAnonymousInnerClassHelper outerInstance;
+
+				public OnClickListenerAnonymousInnerClassHelper(RunnableAnonymousInnerClassHelper outerInstance)
+				{
+					this.outerInstance = outerInstance;
+				}
+
+				public void OnClick(IDialogInterface dialog, int which)
+				{
+					dialog.Dismiss();
+					Environment.Exit(1);
+				}
+			}
+		}
+
+		// Returns the Message attached to the original Cause of |t|.
+		private static string getTopLevelCauseMessage(Exception t)
+		{
+			Exception topLevelCause = t;
+			while (topLevelCause.InnerException != null)
+			{
+				topLevelCause = topLevelCause.InnerException;
+			}
+			return topLevelCause.Message;
+		}
+
+		// Returns a human-readable String of the stacktrace in |t|, recursively
+		// through all Causes that led to |t|.
+		private static string getRecursiveStackTrace(Exception t)
+		{
+			return t.StackTrace;
+		}
 
 	}
 
