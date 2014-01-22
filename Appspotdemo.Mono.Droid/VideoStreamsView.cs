@@ -96,7 +96,7 @@ namespace Appspotdemo.Mono.Droid
 				needToScheduleRender = framesToRender.Count == 0;
 				VideoRenderer.I420Frame frameToDrop;
 				framesToRender.TryGetValue(stream, out frameToDrop);
-				framesToRender.Add(stream, frameCopy);
+				framesToRender[stream] = frameCopy;
 				if (frameToDrop != null)
 				{
 					framePool.returnFrame(frameToDrop);
