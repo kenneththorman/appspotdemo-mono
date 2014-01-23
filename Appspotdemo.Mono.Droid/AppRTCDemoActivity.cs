@@ -412,50 +412,24 @@ namespace Appspotdemo.Mono.Droid
 
 			public void OnIceCandidate(IceCandidate candidate)
 			{
-				outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper2(this, candidate));
-			}
-
-			private class RunnableAnonymousInnerClassHelper2 : Java.Lang.Object, IRunnable
-			{
-				private readonly PCObserver outerInstance;
-
-				private IceCandidate candidate;
-
-				public RunnableAnonymousInnerClassHelper2(PCObserver outerInstance, IceCandidate candidate)
-				{
-					this.outerInstance = outerInstance;
-					this.candidate = candidate;
-				}
-
-				public void Run()
+				outerInstance.RunOnUiThread(() =>
 				{
 					JSONObject json = new JSONObject();
 					jsonPut(json, "type", "candidate");
 					jsonPut(json, "label", candidate.SdpMLineIndex);
 					jsonPut(json, "id", candidate.SdpMid);
 					jsonPut(json, "candidate", candidate.Sdp);
-					outerInstance.outerInstance.sendMessage(json);
-				}
+					outerInstance.sendMessage(json);
+				});
 			}
+
 
 			public void OnError()
 			{
-				outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper3(this));
-			}
-
-			private class RunnableAnonymousInnerClassHelper3 : Java.Lang.Object, IRunnable
-			{
-				private readonly PCObserver outerInstance;
-
-				public RunnableAnonymousInnerClassHelper3(PCObserver outerInstance)
+				outerInstance.RunOnUiThread(() =>
 				{
-					this.outerInstance = outerInstance;
-				}
-
-				public void Run()
-				{
-					throw new Exception("PeerConnection error!");
-				}
+					throw new Exception("PeerConnection error!");					
+				});
 			}
 
 			public void OnSignalingChange(PeerConnection.SignalingState newState)
@@ -470,77 +444,31 @@ namespace Appspotdemo.Mono.Droid
 			{
 			}
 
-			public void OnAddStream(MediaStream stream)
-			{
-				outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper4(this, stream));
-			}
-
-			private class RunnableAnonymousInnerClassHelper4 : Java.Lang.Object, IRunnable
-			{
-				private readonly PCObserver outerInstance;
-
-				private MediaStream stream;
-
-				public RunnableAnonymousInnerClassHelper4(PCObserver outerInstance, MediaStream stream)
-				{
-					this.outerInstance = outerInstance;
-					this.stream = stream;
-				}
-
-				public void Run()
-				{
+ 			public void OnAddStream(MediaStream stream)
+ 			{
+ 				outerInstance.RunOnUiThread(() =>
+ 				{
 					abortUnless(stream.AudioTracks.Size() <= 1 && stream.VideoTracks.Size() <= 1, "Weird-looking stream: " + stream);
 					if (stream.VideoTracks.Size() == 1)
 					{
-						((Org.Webrtc.VideoTrack)stream.VideoTracks.Get(0)).AddRenderer(new VideoRenderer(new VideoCallbacks(outerInstance.outerInstance, outerInstance.outerInstance.vsv, VideoStreamsView.Endpoint.REMOTE)));
+						((Org.Webrtc.VideoTrack)stream.VideoTracks.Get(0)).AddRenderer(new VideoRenderer(new VideoCallbacks(outerInstance, outerInstance.vsv, VideoStreamsView.Endpoint.REMOTE)));
 					}
-				}
+ 					
+ 				});
 			}
 
 			public void OnRemoveStream(MediaStream stream)
 			{
-				outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper5(this, stream));
+				outerInstance.RunOnUiThread(() => stream.VideoTracks.Get(0).Dispose());
 			}
 
-			private class RunnableAnonymousInnerClassHelper5 : Java.Lang.Object, IRunnable
-			{
-				private readonly PCObserver outerInstance;
-
-				private MediaStream stream;
-
-				public RunnableAnonymousInnerClassHelper5(PCObserver outerInstance, MediaStream stream)
-				{
-					this.outerInstance = outerInstance;
-					this.stream = stream;
-				}
-
-				public void Run()
-				{
-					stream.VideoTracks.Get(0).Dispose();
-				}
-			}
 
 			public void OnDataChannel(DataChannel dc)
 			{
-				outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper6(this, dc));
-			}
-
-			private class RunnableAnonymousInnerClassHelper6 : Java.Lang.Object, IRunnable
-			{
-				private readonly PCObserver outerInstance;
-
-				private DataChannel dc;
-
-				public RunnableAnonymousInnerClassHelper6(PCObserver outerInstance, DataChannel dc)
-				{
-					this.outerInstance = outerInstance;
-					this.dc = dc;
-				}
-
-				public void Run()
-				{
-					throw new Exception("AppRTC doesn't use data channels, but got: " + dc.Label() + " anyway!");
-				}
+				outerInstance.RunOnUiThread(() =>
+					{
+						throw new Exception("AppRTC doesn't use data channels, but got: " + dc.Label() + " anyway!");
+					});
 			}
 		}
 
@@ -555,123 +483,70 @@ namespace Appspotdemo.Mono.Droid
 
 			public void OnCreateSuccess(SessionDescription origSdp)
 			{
-				outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this, origSdp));
-			}
-
-			private class RunnableAnonymousInnerClassHelper : Java.Lang.Object, IRunnable
-			{
-				private readonly SDPObserver outerInstance;
-
-				private SessionDescription origSdp;
-
-				public RunnableAnonymousInnerClassHelper(SDPObserver outerInstance, SessionDescription origSdp)
+				outerInstance.RunOnUiThread(() =>
 				{
-					this.outerInstance = outerInstance;
-					this.origSdp = origSdp;
-				}
-
-				public virtual void Run()
-				{
-					outerInstance.outerInstance.logAndToast("Sending " + origSdp.Type);
-					SessionDescription sdp = new SessionDescription(origSdp.Type, outerInstance.outerInstance.preferISAC(origSdp.Description));
+					outerInstance.logAndToast("Sending " + origSdp.Type);
+					SessionDescription sdp = new SessionDescription(origSdp.Type, outerInstance.preferISAC(origSdp.Description));
 					JSONObject json = new JSONObject();
 					jsonPut(json, "type", sdp.Type.CanonicalForm());
 					jsonPut(json, "sdp", sdp.Description);
-					outerInstance.outerInstance.sendMessage(json);
-					outerInstance.outerInstance.pc.SetLocalDescription(outerInstance.outerInstance.sdpObserver, sdp);
-				}
+					outerInstance.sendMessage(json);
+					outerInstance.pc.SetLocalDescription(outerInstance.sdpObserver, sdp);
+					
+				});
 			}
 
 			public void OnSetSuccess()
 			{
-				outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper2(this));
-			}
-
-			private class RunnableAnonymousInnerClassHelper2 : Java.Lang.Object, IRunnable
-			{
-				private readonly SDPObserver outerInstance;
-
-				public RunnableAnonymousInnerClassHelper2(SDPObserver outerInstance)
+				outerInstance.RunOnUiThread(() =>
 				{
-					this.outerInstance = outerInstance;
-				}
-
-				public virtual void Run()
-				{
-					if (outerInstance.outerInstance.appRtcClient.Initiator)
+					if (outerInstance.appRtcClient.Initiator)
 					{
-						if (outerInstance.outerInstance.pc.RemoteDescription != null)
+						if (outerInstance.pc.RemoteDescription != null)
 						{
 							// We've set our local offer and received & set the remote
 							// answer, so drain candidates.
-							outerInstance.drainRemoteCandidates();
+							drainRemoteCandidates();
 						}
 					}
 					else
 					{
-						if (outerInstance.outerInstance.pc.LocalDescription == null)
+						if (outerInstance.pc.LocalDescription == null)
 						{
 							// We just set the remote offer, time to create our answer.
-							outerInstance.outerInstance.logAndToast("Creating answer");
-							outerInstance.outerInstance.pc.CreateAnswer(outerInstance, outerInstance.outerInstance.sdpMediaConstraints);
+							outerInstance.logAndToast("Creating answer");
+							outerInstance.pc.CreateAnswer(this, outerInstance.sdpMediaConstraints);
 						}
 						else
 						{
 							// Sent our answer and set it as local description; drain
 							// candidates.
-							outerInstance.drainRemoteCandidates();
+							drainRemoteCandidates();
 						}
 					}
-				}
+					
+				});
 			}
+
 
 			public void OnCreateFailure(string error)
 			{
-				outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper3(this, error));
-			}
-
-			private class RunnableAnonymousInnerClassHelper3 : Java.Lang.Object, IRunnable
-			{
-				private readonly SDPObserver outerInstance;
-
-				private string error;
-
-				public RunnableAnonymousInnerClassHelper3(SDPObserver outerInstance, string error)
+				outerInstance.RunOnUiThread(() =>
 				{
-					this.outerInstance = outerInstance;
-					this.error = error;
-				}
-
-				public void Run()
-				{
-					throw new Exception("createSDP error: " + error);
-				}
+					throw new Exception("createSDP error: " + error);					
+				});
 			}
 
 			public void OnSetFailure(string error)
 			{
-				outerInstance.RunOnUiThread(new RunnableAnonymousInnerClassHelper4(this, error));
-			}
-
-			private class RunnableAnonymousInnerClassHelper4 : Java.Lang.Object, IRunnable
-			{
-				private readonly SDPObserver outerInstance;
-
-				private string error;
-
-				public RunnableAnonymousInnerClassHelper4(SDPObserver outerInstance, string error)
-				{
-					this.outerInstance = outerInstance;
-					this.error = error;
-				}
-
-				public virtual void Run()
+				outerInstance.RunOnUiThread(() =>
 				{
 					throw new Exception("setSDP error: " + error);
-				}
+				});
 			}
 
-			internal virtual void drainRemoteCandidates()
+
+			private void drainRemoteCandidates()
 			{
 				foreach (IceCandidate candidate in outerInstance.queuedRemoteCandidates)
 				{
@@ -811,27 +686,7 @@ namespace Appspotdemo.Mono.Droid
 			//ORIGINAL LINE: @Override public void setSize(final int width, final int height)
 			public void SetSize(int width, int height)
 			{
-				view.QueueEvent(new RunnableAnonymousInnerClassHelper(this, width, height));
-			}
-
-			private class RunnableAnonymousInnerClassHelper : Java.Lang.Object, IRunnable
-			{
-				private readonly VideoCallbacks outerInstance;
-
-				private int width;
-				private int height;
-
-				public RunnableAnonymousInnerClassHelper(VideoCallbacks outerInstance, int width, int height)
-				{
-					this.outerInstance = outerInstance;
-					this.width = width;
-					this.height = height;
-				}
-
-				public void Run()
-				{
-					outerInstance.view.setSize(outerInstance.stream, width, height);
-				}
+				view.QueueEvent(() => view.setSize(stream, width, height));
 			}
 
 			public void RenderFrame(VideoRenderer.I420Frame frame)
