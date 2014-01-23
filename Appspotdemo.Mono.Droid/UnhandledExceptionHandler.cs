@@ -56,8 +56,6 @@ namespace Appspotdemo.Mono.Droid
 			this.activity = activity;
 		}
 
-		//JAVA TO C# CONVERTER WARNING: 'final' parameters are not allowed in .NET:
-		//ORIGINAL LINE: public void uncaughtException(Thread unusedThread, final Throwable e)
 		public void UncaughtException(Java.Lang.Thread unusedThread, Java.Lang.Throwable e)
 		{
 			activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this, e));
