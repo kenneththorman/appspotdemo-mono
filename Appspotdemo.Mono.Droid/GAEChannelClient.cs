@@ -28,7 +28,6 @@
 using Android.App;
 using Android.Util;
 using Android.Webkit;
-using Java.Lang;
 
 namespace Appspotdemo.Mono.Droid
 {
@@ -66,8 +65,9 @@ namespace Appspotdemo.Mono.Droid
 		{
 			webView = new WebView(activity);
 			webView.Settings.JavaScriptEnabled = true;
-			//webView.SetWebChromeClient(new WebChromeClientAnonymousInnerClassHelper(this)); // Purely for debugging.
-			//webView.SetWebViewClient(new WebViewClientAnonymousInnerClassHelper(this)); // Purely for debugging.
+			webView.SetWebChromeClient(new WebChromeClientAnonymousInnerClassHelper(this)); // Purely for debugging.
+			webView.SetWebViewClient(new WebViewClientAnonymousInnerClassHelper(this)); // Purely for debugging.
+			Log.Debug(TAG,string.Format("token:{0}", token));
 			proxyingMessageHandler = new ProxyingMessageHandler(activity, handler, token);
 			webView.AddJavascriptInterface(proxyingMessageHandler, "androidMessageHandler");
 			webView.LoadUrl("file:///android_asset/channel.html");
@@ -106,7 +106,7 @@ namespace Appspotdemo.Mono.Droid
 
 		/// <summary>
 		/// Close the connection to the AppEngine channel. </summary>
-		public virtual void close()
+		public void close()
 		{
 			if (webView == null)
 			{
@@ -124,28 +124,28 @@ namespace Appspotdemo.Mono.Droid
 		{
 			private readonly Activity activity;
 			private readonly MessageHandler handler;
-			private readonly bool[] disconnected_Renamed = new bool[] { false };
-			private readonly string token;
+			private readonly bool[] _disconnected = { false };
+			private readonly Java.Lang.String token;
 
 			public ProxyingMessageHandler(Activity activity, MessageHandler handler, string token)
 			{
 				this.activity = activity;
 				this.handler = handler;
-				this.token = token;
+				this.token = new Java.Lang.String(token);
 			}
 
 			public void disconnect()
 			{
-				disconnected_Renamed[0] = true;
+				_disconnected[0] = true;
 			}
 
 			private bool disconnected()
 			{
-				return disconnected_Renamed[0];
+				return _disconnected[0];
 			}
 
 			[JavascriptInterface]
-			public string getToken()
+			public Java.Lang.String getToken()
 			{
 				return token;
 			}
@@ -153,107 +153,28 @@ namespace Appspotdemo.Mono.Droid
 			[JavascriptInterface]
 			public void onOpen()
 			{
-				activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this));
+				activity.RunOnUiThread(() => handler.onOpen());
 			}
 
-			private class RunnableAnonymousInnerClassHelper : Object, IRunnable
-			{
-				private readonly ProxyingMessageHandler outerInstance;
-
-				public RunnableAnonymousInnerClassHelper(ProxyingMessageHandler outerInstance)
-				{
-					this.outerInstance = outerInstance;
-				}
-
-				public void Run()
-				{
-					if (!outerInstance.disconnected())
-					{
-						outerInstance.handler.onOpen();
-					}
-				}
-			}
 
 			[JavascriptInterface]
 			public void onMessage(string data)
 			{
-				activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper2(this, data));
+				activity.RunOnUiThread(() => handler.onMessage(data));
 			}
 
-			private class RunnableAnonymousInnerClassHelper2 : Java.Lang.Object, IRunnable
-			{
-				private readonly ProxyingMessageHandler outerInstance;
-
-				private string data;
-
-				public RunnableAnonymousInnerClassHelper2(ProxyingMessageHandler outerInstance, string data)
-				{
-					this.outerInstance = outerInstance;
-					this.data = data;
-				}
-
-				public void Run()
-				{
-					if (!outerInstance.disconnected())
-					{
-						outerInstance.handler.onMessage(data);
-					}
-				}
-			}
 
 			[JavascriptInterface]
 			public void onClose()
 			{
-				activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper3(this));
-			}
-
-			private class RunnableAnonymousInnerClassHelper3 : Object, IRunnable
-			{
-				private readonly ProxyingMessageHandler outerInstance;
-
-				public RunnableAnonymousInnerClassHelper3(ProxyingMessageHandler outerInstance)
-				{
-					this.outerInstance = outerInstance;
-				}
-
-				public void Run()
-				{
-					if (!outerInstance.disconnected())
-					{
-						outerInstance.handler.onClose();
-					}
-				}
+				activity.RunOnUiThread(() => handler.onClose());
 			}
 
 			[JavascriptInterface]
-			public void onError(int code, string description)
+			public void onError(int code, Java.Lang.String description)
 			{
-				activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper4(this, code, description));
-			}
-
-			private class RunnableAnonymousInnerClassHelper4 : Object, IRunnable
-			{
-				private readonly ProxyingMessageHandler outerInstance;
-
-				private int code;
-				private string description;
-
-				public RunnableAnonymousInnerClassHelper4(ProxyingMessageHandler outerInstance, int code, string description)
-				{
-					this.outerInstance = outerInstance;
-					this.code = code;
-					this.description = description;
-				}
-
-				public void Run()
-				{
-					if (!outerInstance.disconnected())
-					{
-						outerInstance.handler.onError(code, description);
-					}
-				}
+				activity.RunOnUiThread(() => handler.onError(code, (string)description));
 			}
 		}
 	}
-
 }
