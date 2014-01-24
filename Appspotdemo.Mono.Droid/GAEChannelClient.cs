@@ -28,6 +28,7 @@
 using Android.App;
 using Android.Util;
 using Android.Webkit;
+using Java.Interop;
 
 namespace Appspotdemo.Mono.Droid
 {
@@ -43,7 +44,7 @@ namespace Appspotdemo.Mono.Droid
 	{
 		private const string TAG = "GAEChannelClient";
 		private WebView webView;
-		private readonly ProxyingMessageHandler proxyingMessageHandler;
+		private readonly androidMessageHandler _androidMessageHandler;
 
 		/// <summary>
 		/// Callback interface for messages delivered on the Google AppEngine channel.
@@ -68,8 +69,8 @@ namespace Appspotdemo.Mono.Droid
 			webView.SetWebChromeClient(new WebChromeClientAnonymousInnerClassHelper(this)); // Purely for debugging.
 			webView.SetWebViewClient(new WebViewClientAnonymousInnerClassHelper(this)); // Purely for debugging.
 			Log.Debug(TAG,string.Format("token:{0}", token));
-			proxyingMessageHandler = new ProxyingMessageHandler(activity, handler, token);
-			webView.AddJavascriptInterface(proxyingMessageHandler, "androidMessageHandler");
+			_androidMessageHandler = new androidMessageHandler(activity, handler, token);
+			webView.AddJavascriptInterface(_androidMessageHandler, "androidMessageHandler");
 			webView.LoadUrl("file:///android_asset/channel.html");
 		}
 
@@ -112,7 +113,7 @@ namespace Appspotdemo.Mono.Droid
 			{
 				return;
 			}
-			proxyingMessageHandler.disconnect();
+			_androidMessageHandler.disconnect();
 			webView.RemoveJavascriptInterface("androidMessageHandler");
 			webView.LoadUrl("about:blank");
 			webView = null;
@@ -120,14 +121,14 @@ namespace Appspotdemo.Mono.Droid
 
 		// Helper class for proxying callbacks from the Java<->JS interaction
 		// (private, background) thread to the Activity's UI thread.
-		private class ProxyingMessageHandler : Java.Lang.Object
+		private class androidMessageHandler : Java.Lang.Object
 		{
 			private readonly Activity activity;
 			private readonly MessageHandler handler;
 			private readonly bool[] _disconnected = { false };
 			private readonly Java.Lang.String token;
 
-			public ProxyingMessageHandler(Activity activity, MessageHandler handler, string token)
+			public androidMessageHandler(Activity activity, MessageHandler handler, string token)
 			{
 				this.activity = activity;
 				this.handler = handler;
@@ -144,12 +145,14 @@ namespace Appspotdemo.Mono.Droid
 				return _disconnected[0];
 			}
 
+			[Export("getToken")]
 			[JavascriptInterface]
 			public Java.Lang.String getToken()
 			{
 				return token;
 			}
 
+			[Export("opOpen")]
 			[JavascriptInterface]
 			public void onOpen()
 			{
@@ -157,19 +160,21 @@ namespace Appspotdemo.Mono.Droid
 			}
 
 
+			[Export("onMessage")]
 			[JavascriptInterface]
 			public void onMessage(string data)
 			{
 				activity.RunOnUiThread(() => handler.onMessage(data));
 			}
 
-
+			[Export("onClose")]
 			[JavascriptInterface]
 			public void onClose()
 			{
 				activity.RunOnUiThread(() => handler.onClose());
 			}
 
+			[Export("onError")]
 			[JavascriptInterface]
 			public void onError(int code, Java.Lang.String description)
 			{
