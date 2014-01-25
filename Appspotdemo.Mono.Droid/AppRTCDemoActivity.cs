@@ -299,7 +299,7 @@ namespace Appspotdemo.Mono.Droid
 			}
 		}
 
-		protected internal void OnDestroy()
+		protected override void OnDestroy()
 		{
 			disconnectAndExit();
 			base.OnDestroy();
