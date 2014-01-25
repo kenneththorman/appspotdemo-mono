@@ -104,22 +104,7 @@ namespace Appspotdemo.Mono.Droid
 			}
 			if (needToScheduleRender)
 			{
-				QueueEvent(new RunnableAnonymousInnerClassHelper(this));
-			}
-		}
-
-		private class RunnableAnonymousInnerClassHelper : Object, IRunnable
-		{
-			private readonly VideoStreamsView outerInstance;
-
-			public RunnableAnonymousInnerClassHelper(VideoStreamsView outerInstance)
-			{
-				this.outerInstance = outerInstance;
-			}
-
-			public void Run()
-			{
-				outerInstance.updateFrames();
+				QueueEvent(updateFrames);
 			}
 		}
 
@@ -172,7 +157,7 @@ namespace Appspotdemo.Mono.Droid
 			checkNoGLES2Error();
 		}
 
-		protected internal void OnMeasure(int unusedX, int unusedY)
+		protected override void OnMeasure(int unusedX, int unusedY)
 		{
 			// Go big or go home!
 			SetMeasuredDimension(screenDimensions.X, screenDimensions.Y);
