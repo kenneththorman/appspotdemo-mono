@@ -58,51 +58,30 @@ namespace Appspotdemo.Mono.Droid
 
 		public void UncaughtException(Java.Lang.Thread unusedThread, Java.Lang.Throwable e)
 		{
-			activity.RunOnUiThread(new RunnableAnonymousInnerClassHelper(this, e));
+			this.e = e;
+			activity.RunOnUiThread(Run);
 		}
 
-		private class RunnableAnonymousInnerClassHelper : Java.Lang.Object, IRunnable
+		private Exception e;
+
+		public void Run()
 		{
-			private readonly UnhandledExceptionHandler outerInstance;
+			string title = "Fatal error: " + getTopLevelCauseMessage(e);
+			string msg = getRecursiveStackTrace(e);
+			TextView errorView = new TextView(activity);
+			errorView.Text = msg;
+			errorView.SetTextSize(ComplexUnitType.Sp, 8);
+			ScrollView scrollingContainer = new ScrollView(activity);
+			scrollingContainer.AddView(errorView);
+			Log.Error(TAG, title + "\n\n" + msg);
+			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+			builder.SetTitle(title).SetView(scrollingContainer).SetPositiveButton("Exit", OnClick).Show();
+		}
 
-			private Exception e;
-
-			public RunnableAnonymousInnerClassHelper(UnhandledExceptionHandler outerInstance, Exception e)
-			{
-				this.outerInstance = outerInstance;
-				this.e = e;
-			}
-
-			public void Run()
-			{
-				string title = "Fatal error: " + getTopLevelCauseMessage(e);
-				string msg = getRecursiveStackTrace(e);
-				TextView errorView = new TextView(outerInstance.activity);
-				errorView.Text = msg;
-				errorView.SetTextSize(ComplexUnitType.Sp, 8);
-				ScrollView scrollingContainer = new ScrollView(outerInstance.activity);
-				scrollingContainer.AddView(errorView);
-				Log.Error(TAG, title + "\n\n" + msg);
-				IDialogInterfaceOnClickListener listener = new OnClickListenerAnonymousInnerClassHelper(this);
-				AlertDialog.Builder builder = new AlertDialog.Builder(outerInstance.activity);
-				builder.SetTitle(title).SetView(scrollingContainer).SetPositiveButton("Exit", listener).Show();
-			}
-
-			private class OnClickListenerAnonymousInnerClassHelper : Java.Lang.Object, IDialogInterfaceOnClickListener
-			{
-				private readonly RunnableAnonymousInnerClassHelper outerInstance;
-
-				public OnClickListenerAnonymousInnerClassHelper(RunnableAnonymousInnerClassHelper outerInstance)
-				{
-					this.outerInstance = outerInstance;
-				}
-
-				public void OnClick(IDialogInterface dialog, int which)
-				{
-					dialog.Dismiss();
-					Environment.Exit(1);
-				}
-			}
+		public void OnClick(object sender, DialogClickEventArgs args)
+		{
+			((AlertDialog)sender).Dismiss();
+			Environment.Exit(1);
 		}
 
 		// Returns the Message attached to the original Cause of |t|.
