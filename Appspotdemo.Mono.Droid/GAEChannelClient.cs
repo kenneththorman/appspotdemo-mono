@@ -86,7 +86,7 @@ namespace Appspotdemo.Mono.Droid
 			public virtual bool onConsoleMessage(ConsoleMessage msg)
 			{
 				Log.Debug(TAG, "console: " + msg.Message() + " at " + msg.SourceId() + ":" + msg.LineNumber());
-				return false;
+				return true;
 			}
 		}
 
@@ -152,7 +152,7 @@ namespace Appspotdemo.Mono.Droid
 				return token;
 			}
 
-			[Export("opOpen")]
+			[Export("onOpen")]
 			[JavascriptInterface]
 			public void onOpen()
 			{
