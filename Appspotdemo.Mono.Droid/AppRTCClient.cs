@@ -437,7 +437,7 @@ namespace Appspotdemo.Mono.Droid
 				for (int i = 0; i < servers.Length(); ++i)
 				{
 					JSONObject server = servers.GetJSONObject(i);
-					string url = server.GetString("url");
+					string url = server.GetString("urls");
 					string credential = server.Has("credential") ? server.GetString("credential") : "";
 					ret.Add(new PeerConnection.IceServer(url, "", credential));
 				}
@@ -484,6 +484,7 @@ namespace Appspotdemo.Mono.Droid
 				{
 					foreach (string msg in sendQueue)
 					{
+						Log.Debug("console", msg);
 						URLConnection connection = (new URL(appRTCSignalingParameters.gaeBaseHref + appRTCSignalingParameters.postMessageUrl)).OpenConnection();
 						connection.DoOutput = true;
 						connection.OutputStream.Write(msg.GetBytes("UTF-8"), 0, msg.Length - 1);
