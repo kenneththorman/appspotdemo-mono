@@ -35,6 +35,7 @@ using Android.Util;
 using Android.Views;
 using Android.Webkit;
 using Android.Widget;
+using Java.Interop;
 using Java.Lang;
 using Java.Util.Regex;
 using Org.Json;
@@ -567,6 +568,7 @@ namespace Appspotdemo.Mono.Droid
 				this.outerInstance = outerInstance;
 			}
 
+			[Export("onOpen")]
 			[JavascriptInterface]
 			public void onOpen()
 			{
@@ -578,6 +580,7 @@ namespace Appspotdemo.Mono.Droid
 				outerInstance.pc.CreateOffer(outerInstance.sdpObserver, outerInstance.sdpMediaConstraints);
 			}
 
+			[Export("onMessage")]
 			[JavascriptInterface]
 			public void onMessage(string data)
 			{
@@ -618,12 +621,14 @@ namespace Appspotdemo.Mono.Droid
 				}
 			}
 
+			[Export("onClose")]
 			[JavascriptInterface]
 			public void onClose()
 			{
 				outerInstance.disconnectAndExit();
 			}
 
+			[Export("onError")]
 			[JavascriptInterface]
 			public void onError(int code, string description)
 			{
