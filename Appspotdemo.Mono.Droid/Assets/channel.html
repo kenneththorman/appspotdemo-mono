@@ -21,7 +21,10 @@
         channel = new goog.appengine.Channel(token);
         socket = channel.open({
           'onopen': function() { androidMessageHandler.onOpen(); },
-          'onmessage': function(msg) { androidMessageHandler.onMessage(msg.data); },
+          'onmessage': function(msg) {
+              console.log(msg.data);
+              androidMessageHandler.onMessage(msg.data);
+          },
           'onclose': function() { androidMessageHandler.onClose(); },
           'onerror': function(err) { androidMessageHandler.onError(err.code, err.description); }
         });
